@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HostFull · by Creed Inc.</title>
+<style>
+:root{--bg:#0e1116;--panel:#171c24;--panel2:#1e2530;--line:#2a3340;--txt:#e8edf3;--mut:#8a97a8;--acc:#7c5cff;--acc2:#27d3a2;--red:#ff5c6c;--yel:#ffc24b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+a{color:inherit;text-decoration:none}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--line);background:#0e1116ee;position:sticky;top:0;backdrop-filter:blur(8px);z-index:5}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.5px}
+.logo i{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-style:normal;font-size:16px;color:#fff}
+.logo small{color:var(--mut);font-weight:500;font-size:12px}
+nav{display:flex;gap:6px;align-items:center}
+nav a{padding:8px 14px;border-radius:8px;color:var(--mut);font-size:14px;cursor:pointer}
+nav a:hover,nav a.on{background:var(--panel);color:var(--txt)}
+.btn{display:inline-block;border:0;cursor:pointer;padding:10px 18px;border-radius:10px;font-weight:700;font-size:14px;background:var(--acc);color:#fff}
+nav a.btn{color:#fff}
+.btn:hover{filter:brightness(1.12)}
+.btn.g{background:var(--acc2);color:#04241b}.btn.r{background:var(--red)}.btn.o{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+main{max-width:1050px;margin:0 auto;padding:32px 20px 80px}
+.hero{text-align:center;padding:70px 10px 40px}
+.hero h1{font-size:clamp(34px,6vw,60px);line-height:1.05;margin-bottom:16px}
+.hero h1 span{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);max-width:560px;margin:0 auto 28px;font-size:18px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:30px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card h3{margin-bottom:6px;font-size:16px}.card p{color:var(--mut);font-size:14px;line-height:1.5}
+h2{font-size:24px;margin-bottom:16px}
+.srv{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:12px;cursor:pointer}
+.srv:hover{border-color:var(--acc)}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.offline{background:var(--red)}.online{background:var(--acc2);box-shadow:0 0 10px var(--acc2)}.starting,.stopping{background:var(--yel);animation:p 1s infinite}
+@keyframes p{50%{opacity:.35}}
+.srv .meta{flex:1}.srv .meta b{font-size:17px}.srv .meta div{color:var(--mut);font-size:13px;margin-top:3px}
+.tag{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);color:var(--mut);font-weight:500}
+label{display:block;font-size:13px;color:var(--mut);margin:14px 0 6px}
+input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:11px 12px;border-radius:10px;font-size:14px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);border-color:transparent}
+.tabs{display:flex;gap:6px;margin:20px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs a{padding:10px 16px;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;font-size:14px}
+.tabs a.on{color:var(--txt);border-color:var(--acc)}
+.console{background:#07090c;border:1px solid var(--line);border-radius:12px;height:300px;overflow:auto;padding:14px;font:12.5px/1.6 ui-monospace,Consolas,monospace;color:#b9c4d2}
+.console .i{color:#6fe3c0}.console .w{color:var(--yel)}.console .c{color:#9db4ff}
+.row{display:flex;gap:10px;margin-top:10px}
+.big{text-align:center;padding:28px}.big .st{font-size:28px;font-weight:800;margin:10px 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.two{grid-template-columns:1fr}nav a:not(.btn){display:none}}
+.toggle{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.toggle input{width:auto}
+footer{border-top:1px solid var(--line);padding:26px;text-align:center;color:var(--mut);font-size:13px}
+.empty{text-align:center;color:var(--mut);padding:40px}
+.modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:20;padding:20px}
+.modal .card{width:100%;max-width:420px}
+</style>
+</head>
+<body>
+<header>
+  <a href="#/" class="logo"><i>H</i><div>HostFull<br><small>by Creed Inc.</small></div></a>
+  <nav id="nav"></nav>
+</header>
+<main id="app"></main>
+<footer>© <span id="yr"></span> Creed Inc. · HostFull · Not affiliated with Mojang or Microsoft.</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const SOFT = ['Paper', 'Vanilla'];
+const VERS = ['1.21.4', '1.21.1', '1.20.6', '1.20.4', '1.19.4', '1.18.2'];
+const LABEL = { offline: 'Offline', starting: 'Starting…', online: 'Online', stopping: 'Stopping…' };
+let token = localStorage.getItem('hf_token'), me = localStorage.getItem('hf_name');
+let tab = 'status', poll = null, cur = null, built = '', sig = '', HOST = location.hostname;
+let DOMAIN = 'creeds.inc';
+$('#yr').textContent = new Date().getFullYear();
+fetch('/api/config').then(r => r.json()).then(c => { if (c.host) HOST = c.host; if (c.domain) DOMAIN = c.domain; }).catch(() => {});
+
+async function api(method, url, body) {
+  const r = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401 && token) { logout(); throw new Error('Session expired'); }
+  if (!r.ok) throw new Error(d.error || 'Request failed');
+  return d;
+}
+function logout() {
+  localStorage.removeItem('hf_token'); localStorage.removeItem('hf_name');
+  token = me = null; location.hash = '#/login'; route();
+}
+const addr = s => s.sub ? esc(s.sub) + '.' + esc(DOMAIN) : esc(HOST) + ':' + s.port;
+
+/* ---------- router ---------- */
+function route() {
+  clearInterval(poll);
+  const [_, p1, p2] = (location.hash.slice(1) || '/').split('/');
+  renderNav(p1 || '');
+  if (!p1) return home();
+  if (p1 === 'about') return about();
+  if (p1 === 'login' || !token) return login();
+  if (p1 === 'servers') return p2 ? detail(p2) : list();
+  home();
+}
+function renderNav(c) {
+  $('#nav').innerHTML =
+    `<a href="#/" class="${c === '' ? 'on' : ''}">Home</a><a href="#/about" class="${c === 'about' ? 'on' : ''}">About</a>` +
+    (token ? `<a href="#/servers" class="${c === 'servers' ? 'on' : ''}">My Servers</a><a onclick="logout()">Logout (${esc(me)})</a>`
+           : `<a href="#/login" class="btn">Get started</a>`);
+}
+addEventListener('hashchange', route);
+
+/* ---------- static pages ---------- */
+function home() {
+  $('#app').innerHTML = `
+  <section class="hero">
+    <h1>Your own Minecraft server.<br><span>Free. Always full of fun.</span></h1>
+    <p>HostFull lets you spin up a server in seconds, pick your version and software, and invite your friends. Built by Creed Inc.</p>
+    <a class="btn" href="#/${token ? 'servers' : 'login'}">${token ? 'Open dashboard' : 'Create your server'}</a>
+  </section>
+  <div class="grid">
+    <div class="card"><h3>⚡ Instant setup</h3><p>Name it, pick a version, hit start. No technical knowledge needed.</p></div>
+    <div class="card"><h3>🧩 Paper & Vanilla</h3><p>Choose optimized Paper or the classic Vanilla server software.</p></div>
+    <div class="card"><h3>🖥️ Live console</h3><p>Run commands and watch logs from your browser.</p></div>
+    <div class="card"><h3>🔒 Whitelist & ops</h3><p>Control who joins and who has admin rights.</p></div>
+  </div>`;
+}
+function about() {
+  $('#app').innerHTML = `<h2>About HostFull</h2><div class="card"><p>HostFull is a project by <b>Creed Inc.</b> dedicated to making server hosting simple and accessible for everyone.</p></div>`;
+}
+
+/* ---------- auth ---------- */
+function login() {
+  $('#app').innerHTML = `<div style="max-width:420px;margin:40px auto"><div class="card"><h2>Sign in to HostFull</h2>
+  <label>Username</label><input id="lu" autocomplete="username">
+  <label>Password</label><input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth('login')">
+  <p id="err" style="color:var(--red);font-size:13px;margin-top:10px"></p>
+  <div class="row"><button class="btn o" style="flex:1" onclick="doAuth('register')">Create account</button>
+  <button class="btn" style="flex:1" onclick="doAuth('login')">Sign in</button></div></div></div>`;
+}
+async function doAuth(kind) {
+  try {
+    const d = await api('POST', '/api/' + kind, { name: $('#lu').value.trim(), password: $('#lp').value });
+    token = d.token; me = d.name;
+    localStorage.setItem('hf_token', token); localStorage.setItem('hf_name', me);
+    location.hash = '#/servers'; route();
+  } catch (e) { $('#err').textContent = e.message; }
+}
+
+/* ---------- server list ---------- */
+async function list() {
+  $('#app').innerHTML = `<p class="empty">Loading…</p>`;
+  let S; try { S = await api('GET', '/api/servers'); } catch (e) { return; }
+  $('#app').innerHTML =
+    `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="margin:0">My Servers</h2><button class="btn g" onclick="newModal()">+ New server</button></div>` +
+    (S.length ? S.map(s => `<div class="srv" onclick="location.hash='#/servers/${s.id}'"><span class="dot ${s.status}"></span>
+      <div class="meta"><b>${esc(s.name)}</b><div>${addr(s)} · ${s.status}</div></div>
+      <span class="tag">${s.soft} ${s.ver}</span></div>`).join('')
+      : `<div class="empty card">No servers yet. Create your first one!</div>`);
+}
+function newModal() {
+  const m = document.createElement('div'); m.className = 'modal'; m.id = 'modal';
+  m.innerHTML = `<div class="card"><h2>New server</h2>
+  <label>Server name</label><input id="nn" placeholder="My Survival World" oninput="prev()">
+  <p id="nprev" style="font-size:13px;margin-top:6px;min-height:18px"></p>
+  <label>Software</label><select id="ns">${SOFT.map(x => `<option>${x}</option>`).join('')}</select>
+  <label>Version</label><select id="nv">${VERS.map(x => `<option>${x}</option>`).join('')}</select>
+  <div class="toggle" style="margin-top:10px"><span>I accept the <a href="https://aka.ms/MinecraftEULA" target="_blank" style="text-decoration:underline">Minecraft EULA</a></span><input type="checkbox" id="ne"></div>
+  <p id="nerr" style="color:var(--red);font-size:13px;margin-top:8px"></p>
+  <div class="row"><button class="btn o" style="flex:1" onclick="$('#modal').remove()">Cancel</button><button class="btn g" style="flex:1" onclick="createServer()">Create</button></div></div>`;
+  document.body.appendChild(m);
+}
+let prevT;
+function prev() {
+  clearTimeout(prevT);
+  prevT = setTimeout(async () => {
+    const el = $('#nprev'); if (!el) return;
+    const n = $('#nn').value.trim();
+    if (!n) { el.textContent = ''; return; }
+    try {
+      const d = await api('GET', '/api/check-name?name=' + encodeURIComponent(n));
+      el.style.color = d.ok ? 'var(--acc2)' : 'var(--red)';
+      el.textContent = d.ok ? '✓ ' + d.address + ' is available' : '✗ ' + (d.error || 'Not available');
+    } catch (e) {}
+  }, 300);
+}
+async function createServer() {
+  try {
+    const s = await api('POST', '/api/servers', { name: $('#nn').value.trim() || 'My Server', soft: $('#ns').value, ver: $('#nv').value, eula: $('#ne').checked });
+    $('#modal').remove(); location.hash = '#/servers/' + s.id;
+  } catch (e) { $('#nerr').textContent = e.message; }
+}
+
+/* ---------- server detail ---------- */
+async function detail(id) {
+  built = ''; cur = null; tab = 'status'; sig = '';
+  $('#app').innerHTML = `<a href="#/servers" style="color:var(--mut);font-size:14px">← All servers</a>
+  <h2 id="dh" style="margin-top:10px"></h2><div class="tabs" id="tabs"></div><div id="tabc"></div>`;
+  poll = setInterval(() => tick(id), 2000);
+  tick(id);
+}
+async function tick(id) {
+  let s;
+  try { s = await api('GET', '/api/servers/' + id); } catch (e) { if (token) location.hash = '#/servers'; return; }
+  if (location.hash !== '#/servers/' + id) return;
+  cur = s;
+  $('#dh').innerHTML = `${esc(s.name)} <span class="tag">${s.soft} ${s.ver}</span>`;
+  $('#tabs').innerHTML = [['status', 'Status'], ['console', 'Console'], ['players', 'Players'], ['options', 'Options'], ['danger', 'Settings']]
+    .map(t => `<a class="${tab === t[0] ? 'on' : ''}" onclick="setTab('${t[0]}')">${t[1]}</a>`).join('');
+  draw();
+}
+function setTab(t) { tab = t; built = ''; sig = ''; if (cur) tick(cur.id); }
+function draw() {
+  const s = cur;
+  if (tab === 'status') {
+    const g = JSON.stringify([s.status, s.players, s.opts, s.name, s.port, s.bport, s.sub]);
+    if (built === 'status' && g === sig) return;
+    built = 'status'; sig = g; return tStatus(s);
+  }
+  if (built !== tab) { built = tab; ({ console: bConsole, players: bPlayers, options: bOptions, danger: bDanger })[tab](s); }
+  if (tab === 'console') uConsole(s);
+  if (tab === 'players') uPlayers(s);
+}
+async function act(id, a) { try { await api('POST', `/api/servers/${id}/${a}`); tick(id); } catch (e) { alert(e.message); } }
+
+function tStatus(s) {
+  const on = s.status === 'online', off = s.status === 'offline';
+  $('#tabc').innerHTML = `<div class="two"><div class="card big">
+    <span class="dot ${s.status}" style="display:inline-block;width:18px;height:18px"></span>
+    <div class="st">${LABEL[s.status]}</div>
+    <div style="color:var(--mut);font-size:14px">Address: ${addr(s)}</div>
+    ${s.opts.crossplay && s.bport ? `<div style="color:var(--mut);font-size:14px">Bedrock: ${esc(HOST)} port ${s.bport}</div>` : ''}
+    <div class="row" style="justify-content:center;margin-top:18px">
+      <button class="btn g" ${off ? '' : 'disabled'} onclick="act('${s.id}','start')">Start</button>
+      <button class="btn r" ${on ? '' : 'disabled'} onclick="act('${s.id}','stop')">Stop</button>
+      <button class="btn o" ${on ? '' : 'disabled'} onclick="act('${s.id}','restart')">Restart</button></div></div>
+    <div class="card"><h3>Info</h3><p style="margin-top:10px;line-height:2">
+      Players: <b>${s.players.length}/${s.opts.maxPlayers}</b><br>Gamemode: <b>${s.opts.gamemode}</b><br>
+      Difficulty: <b>${s.opts.difficulty}</b><br>MOTD: <b>${esc(s.opts.motd)}</b><br>
+      Whitelist: <b>${s.opts.whitelist ? 'on' : 'off'}</b></p></div></div>`;
+}
+
+/* console */
+const fmt = l => `<div class="${l.startsWith('>') ? 'c' : /WARN|ERROR/.test(l) ? 'w' : l.startsWith('[HostFull]') ? 'i' : ''}">${esc(l)}</div>`;
+function bConsole() {
+  $('#tabc').innerHTML = `<div class="console" id="con"></div>
+  <div class="row"><input id="cmd" placeholder="Type a command (list, say hi, op Steve…)" onkeydown="if(event.key==='Enter')sendCmd()">
+  <button class="btn" onclick="sendCmd()">Send</button></div>`;
+}
+function uConsole(s) {
+  const c = $('#con'), stick = c.scrollTop + c.clientHeight >= c.scrollHeight - 30;
+  c.innerHTML = s.log.map(fmt).join('');
+  if (stick) c.scrollTop = c.scrollHeight;
+  $('#cmd').disabled = s.status !== 'online';
+}
+async function sendCmd() {
+  const i = $('#cmd'), c = i.value.trim(); if (!c) return; i.value = '';
+  try { await api('POST', `/api/servers/${cur.id}/command`, { cmd: c }); tick(cur.id); } catch (e) { alert(e.message); }
+}
+
+/* players */
+function bPlayers() {
+  $('#tabc').innerHTML = `<div class="two">
+  <div class="card"><h3>Online</h3><p id="pl" style="margin-top:8px"></p></div>
+  <div class="card"><h3>Operators & whitelist</h3><p id="ol" style="margin-top:8px"></p>
+  <label>Add player to whitelist</label><div class="row"><input id="wn" placeholder="Username"><button class="btn" onclick="addWl()">Add</button></div></div></div>`;
+}
+function uPlayers(s) {
+  $('#pl').innerHTML = s.players.map(p => '• ' + esc(p)).join('<br>') || 'Nobody online.';
+  $('#ol').innerHTML = `Ops: ${s.ops.map(esc).join(', ') || 'none'}<br>Whitelist: ${s.wl.map(esc).join(', ') || 'empty'}`;
+}
+async function addWl() {
+  const n = $('#wn').value.trim(); if (!n) return;
+  try { await api('POST', `/api/servers/${cur.id}/command`, { cmd: 'whitelist add ' + n }); $('#wn').value = ''; tick(cur.id); }
+  catch (e) { alert(e.message); }
+}
+
+/* options */
+function bOptions(s) {
+  const o = s.opts;
+  $('#tabc').innerHTML = `<div class="card"><label>MOTD</label><input id="o_motd" value="${esc(o.motd)}">
+  <div class="two"><div><label>Gamemode</label><select id="o_gm">${['survival', 'creative', 'adventure', 'spectator'].map(x => `<option ${o.gamemode === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+  <div><label>Difficulty</label><select id="o_df">${['peaceful', 'easy', 'normal', 'hard'].map(x => `<option ${o.difficulty === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div></div>
+  <label>Max players (1-20)</label><input id="o_mp" type="number" min="1" max="20" value="${o.maxPlayers}">
+  <div class="toggle">PvP<input type="checkbox" id="o_pvp" ${o.pvp ? 'checked' : ''}></div>
+  <div class="toggle">Whitelist<input type="checkbox" id="o_wl" ${o.whitelist ? 'checked' : ''}></div>
+  <div class="toggle">Online mode (premium accounts only)<input type="checkbox" id="o_om" ${o.onlineMode ? 'checked' : ''}></div>
+  <div class="toggle">Crossplay (Bedrock players, Paper only)<input type="checkbox" id="o_xp" ${o.crossplay ? 'checked' : ''}></div>
+  <div class="row"><button class="btn g" id="osv" onclick="saveOpts()">Save options</button></div>
+  <p style="color:var(--mut);font-size:13px;margin-top:10px">Changes apply the next time the server starts.</p></div>`;
+}
+async function saveOpts() {
+  try {
+    await api('PUT', `/api/servers/${cur.id}/options`, {
+      motd: $('#o_motd').value, gamemode: $('#o_gm').value, difficulty: $('#o_df').value, maxPlayers: $('#o_mp').value,
+      pvp: $('#o_pvp').checked, whitelist: $('#o_wl').checked, onlineMode: $('#o_om').checked, crossplay: $('#o_xp').checked
+    });
+    $('#osv').textContent = 'Saved ✓'; setTimeout(() => { const b = $('#osv'); if (b) b.textContent = 'Save options'; }, 1500);
+  } catch (e) { alert(e.message); }
+}
+
+/* settings */
+function bDanger(s) {
+  $('#tabc').innerHTML = `<div class="card"><h3>Rename</h3><div class="row"><input id="rn" value="${esc(s.name)}"><button class="btn" onclick="rename()">Save</button></div>
+  <label>Software / version (server must be stopped; don't downgrade a world)</label>
+  <div class="row"><select id="rs">${SOFT.map(x => `<option ${s.soft === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+  <select id="rv">${VERS.map(x => `<option ${s.ver === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+  <button class="btn" onclick="chVer()">Apply</button></div></div>
+  <div class="card" style="margin-top:16px;border-color:var(--red)"><h3 style="color:var(--red)">Danger zone</h3>
+  <p style="margin:8px 0 14px">Deleting a server removes its world and files permanently.</p>
+  <button class="btn r" onclick="del()">Delete server</button></div>`;
+}
+async function rename() { try { await api('PATCH', '/api/servers/' + cur.id, { name: $('#rn').value.trim() }); tick(cur.id); } catch (e) { alert(e.message); } }
+async function chVer() { try { await api('PATCH', '/api/servers/' + cur.id, { soft: $('#rs').value, ver: $('#rv').value }); tick(cur.id); } catch (e) { alert(e.message); } }
+async function del() {
+  if (!confirm('Delete this server and its world permanently?')) return;
+  try { await api('DELETE', '/api/servers/' + cur.id); location.hash = '#/servers'; } catch (e) { alert(e.message); }
+}
+
+route();
+</script>
+</body>
+</html>
