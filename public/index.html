@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HostFull · by Creed Inc.</title>
+<title>Nucleon · by Creed Inc.</title>
 <style>
 :root{--bg:#0e1116;--panel:#171c24;--panel2:#1e2530;--line:#2a3340;--txt:#e8edf3;--mut:#8a97a8;--acc:#7c5cff;--acc2:#27d3a2;--red:#ff5c6c;--yel:#ffc24b}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -11,7 +11,7 @@ body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color
 a{color:inherit;text-decoration:none}
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--line);background:#0e1116ee;position:sticky;top:0;backdrop-filter:blur(8px);z-index:5}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.5px}
-.logo i{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-style:normal;font-size:16px;color:#fff}
+.logo i{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-style:normal;font-size:15px;font-weight:800;color:#fff}
 .logo small{color:var(--mut);font-weight:500;font-size:12px}
 nav{display:flex;gap:6px;align-items:center}
 nav a{padding:8px 14px;border-radius:8px;color:var(--mut);font-size:14px;cursor:pointer}
@@ -59,11 +59,11 @@ footer{border-top:1px solid var(--line);padding:26px;text-align:center;color:var
 </head>
 <body>
 <header>
-  <a href="#/" class="logo"><i>H</i><div>HostFull<br><small>by Creed Inc.</small></div></a>
+  <a href="#/" class="logo"><i>Nu</i><div>Nucleon<br><small>by Creed Inc.</small></div></a>
   <nav id="nav"></nav>
 </header>
 <main id="app"></main>
-<footer>© <span id="yr"></span> Creed Inc. · HostFull · Not affiliated with Mojang or Microsoft.</footer>
+<footer>© <span id="yr"></span> Creed Inc. · Nucleon · Not affiliated with Mojang or Microsoft.</footer>
 
 <script>
 const $ = s => document.querySelector(s);
@@ -71,7 +71,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const SOFT = ['Paper', 'Vanilla'];
 const VERS = ['1.21.4', '1.21.1', '1.20.6', '1.20.4', '1.19.4', '1.18.2'];
 const LABEL = { offline: 'Offline', starting: 'Starting…', online: 'Online', stopping: 'Stopping…' };
-let token = localStorage.getItem('hf_token'), me = localStorage.getItem('hf_name');
+let token = localStorage.getItem('nu_token'), me = localStorage.getItem('nu_name');
 let tab = 'status', poll = null, cur = null, built = '', sig = '', HOST = location.hostname;
 let DOMAIN = 'creeds.inc';
 $('#yr').textContent = new Date().getFullYear();
@@ -89,7 +89,7 @@ async function api(method, url, body) {
   return d;
 }
 function logout() {
-  localStorage.removeItem('hf_token'); localStorage.removeItem('hf_name');
+  localStorage.removeItem('nu_token'); localStorage.removeItem('nu_name');
   token = me = null; location.hash = '#/login'; route();
 }
 const addr = s => s.sub ? esc(s.sub) + '.' + esc(DOMAIN) : esc(HOST) + ':' + s.port;
@@ -118,7 +118,7 @@ function home() {
   $('#app').innerHTML = `
   <section class="hero">
     <h1>Your own Minecraft server.<br><span>Free. Always full of fun.</span></h1>
-    <p>HostFull lets you spin up a server in seconds, pick your version and software, and invite your friends. Built by Creed Inc.</p>
+    <p>Nucleon lets you spin up a server in seconds, pick your version and software, and invite your friends. Built by Creed Inc.</p>
     <a class="btn" href="#/${token ? 'servers' : 'login'}">${token ? 'Open dashboard' : 'Create your server'}</a>
   </section>
   <div class="grid">
@@ -129,12 +129,12 @@ function home() {
   </div>`;
 }
 function about() {
-  $('#app').innerHTML = `<h2>About HostFull</h2><div class="card"><p>HostFull is a project by <b>Creed Inc.</b> dedicated to making server hosting simple and accessible for everyone.</p></div>`;
+  $('#app').innerHTML = `<h2>About Nucleon</h2><div class="card"><p>Nucleon is a project by <b>Creed Inc.</b> dedicated to making server hosting simple and accessible for everyone.</p></div>`;
 }
 
 /* ---------- auth ---------- */
 function login() {
-  $('#app').innerHTML = `<div style="max-width:420px;margin:40px auto"><div class="card"><h2>Sign in to HostFull</h2>
+  $('#app').innerHTML = `<div style="max-width:420px;margin:40px auto"><div class="card"><h2>Sign in to Nucleon</h2>
   <label>Username</label><input id="lu" autocomplete="username">
   <label>Password</label><input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth('login')">
   <p id="err" style="color:var(--red);font-size:13px;margin-top:10px"></p>
@@ -145,7 +145,7 @@ async function doAuth(kind) {
   try {
     const d = await api('POST', '/api/' + kind, { name: $('#lu').value.trim(), password: $('#lp').value });
     token = d.token; me = d.name;
-    localStorage.setItem('hf_token', token); localStorage.setItem('hf_name', me);
+    localStorage.setItem('nu_token', token); localStorage.setItem('nu_name', me);
     location.hash = '#/servers'; route();
   } catch (e) { $('#err').textContent = e.message; }
 }
@@ -244,7 +244,7 @@ function tStatus(s) {
 }
 
 /* console */
-const fmt = l => `<div class="${l.startsWith('>') ? 'c' : /WARN|ERROR/.test(l) ? 'w' : l.startsWith('[HostFull]') ? 'i' : ''}">${esc(l)}</div>`;
+const fmt = l => `<div class="${l.startsWith('>') ? 'c' : /WARN|ERROR/.test(l) ? 'w' : l.startsWith('[Nucleon]') ? 'i' : ''}">${esc(l)}</div>`;
 function bConsole() {
   $('#tabc').innerHTML = `<div class="console" id="con"></div>
   <div class="row"><input id="cmd" placeholder="Type a command (list, say hi, op Steve…)" onkeydown="if(event.key==='Enter')sendCmd()">
@@ -323,4 +323,4 @@ async function del() {
 route();
 </script>
 </body>
-</html>
+</html
