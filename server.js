@@ -38,6 +38,7 @@ const rt = id => (runtime[id] ||= { proc: null, status: 'offline', log: [], play
 function addLog(r, line) { r.log.push(line); if (r.log.length > 500) r.log.shift(); }
 function send(r, cmd) { if (r.proc && r.proc.stdin.writable) r.proc.stdin.write(cmd.replace(/[\r\n]/g, ' ') + '\n'); }
 const validName = x => /^[A-Za-z0-9_]{1,16}$/.test(x || '');
+const validEmail = e => e.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 
 /* ---------- auth helpers ---------- */
 function hashPw(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -257,18 +258,24 @@ app.get('/api/check-name', auth, (req, res) => {
 });
 
 app.post('/api/register', (req, res) => {
-  const { name = '', password = '' } = req.body || {};
+  const { name = '', email = '', password = '' } = req.body || {};
+  const mail = String(email).trim().toLowerCase();
+  const pw = String(password);
   if (!/^[A-Za-z0-9_]{3,16}$/.test(name)) return res.status(400).json({ error: 'Username must be 3-16 letters, numbers or _' });
-  if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  if (!validEmail(mail)) return res.status(400).json({ error: 'Enter a valid email address' });
+  if (pw.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
   const key = name.toLowerCase();
   if (db.users[key]) return res.status(400).json({ error: 'Username already taken' });
-  db.users[key] = { name, pw: hashPw(password) };
+  if (Object.values(db.users).some(u => u.email === mail)) return res.status(400).json({ error: 'Email already in use' });
+  db.users[key] = { name, email: mail, pw: hashPw(pw) };
   res.json(session(key));
 });
 app.post('/api/login', (req, res) => {
   const { name = '', password = '' } = req.body || {};
-  const key = String(name).toLowerCase(), u = db.users[key];
-  if (!u || !checkPw(String(password), u.pw)) return res.status(400).json({ error: 'Wrong username or password' });
+  const id = String(name).trim().toLowerCase();
+  const key = db.users[id] ? id : Object.keys(db.users).find(k => db.users[k].email === id);
+  const u = key && db.users[key];
+  if (!u || !checkPw(String(password), u.pw)) return res.status(400).json({ error: 'Wrong email/username or password' });
   res.json(session(key));
 });
 
