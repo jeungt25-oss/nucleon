@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nucleon · by Creed Inc.</title>
+<title>Nucleon Â· by Creed Inc.</title>
 <link rel="icon" href="/logo.png">
 <style>
 :root{--bg:#0e1116;--panel:#171c24;--panel2:#1e2530;--line:#2a3340;--txt:#e8edf3;--mut:#8a97a8;--acc:#7c5cff;--acc2:#27d3a2;--red:#ff5c6c;--yel:#ffc24b}
@@ -12,7 +12,7 @@ body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color
 a{color:inherit;text-decoration:none}
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--line);background:#0e1116ee;position:sticky;top:0;backdrop-filter:blur(8px);z-index:5}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.5px}
-.logo img{width:36px;height:36px;object-fit:contain}
+.logo img{width:48px;height:48px;object-fit:contain}
 .logo small{color:var(--mut);font-weight:500;font-size:12px}
 nav{display:flex;gap:6px;align-items:center}
 nav a{padding:8px 14px;border-radius:8px;color:var(--mut);font-size:14px;cursor:pointer}
@@ -64,14 +64,14 @@ footer{border-top:1px solid var(--line);padding:26px;text-align:center;color:var
   <nav id="nav"></nav>
 </header>
 <main id="app"></main>
-<footer>© <span id="yr"></span> Creed Inc. · Nucleon · Not affiliated with Mojang or Microsoft.</footer>
+<footer>Â© <span id="yr"></span> Creed Inc. Â· Nucleon Â· Not affiliated with Mojang or Microsoft.</footer>
 
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const SOFT = ['Paper', 'Vanilla'];
 const VERS = ['1.21.4', '1.21.1', '1.20.6', '1.20.4', '1.19.4', '1.18.2'];
-const LABEL = { offline: 'Offline', starting: 'Starting…', online: 'Online', stopping: 'Stopping…' };
+const LABEL = { offline: 'Offline', starting: 'Startingâ€¦', online: 'Online', stopping: 'Stoppingâ€¦' };
 let token = localStorage.getItem('nu_token'), me = localStorage.getItem('nu_name');
 let tab = 'status', poll = null, cur = null, built = '', sig = '', HOST = location.hostname;
 let DOMAIN = 'creeds.inc';
@@ -123,10 +123,10 @@ function home() {
     <a class="btn" href="#/${token ? 'servers' : 'login'}">${token ? 'Open dashboard' : 'Create your server'}</a>
   </section>
   <div class="grid">
-    <div class="card"><h3>⚡ Instant setup</h3><p>Name it, pick a version, hit start. No technical knowledge needed.</p></div>
-    <div class="card"><h3>🧩 Paper & Vanilla</h3><p>Choose optimized Paper or the classic Vanilla server software.</p></div>
-    <div class="card"><h3>🖥️ Live console</h3><p>Run commands and watch logs from your browser.</p></div>
-    <div class="card"><h3>🔒 Whitelist & ops</h3><p>Control who joins and who has admin rights.</p></div>
+    <div class="card"><h3>âš¡ Instant setup</h3><p>Name it, pick a version, hit start. No technical knowledge needed.</p></div>
+    <div class="card"><h3>ðŸ§© Paper & Vanilla</h3><p>Choose optimized Paper or the classic Vanilla server software.</p></div>
+    <div class="card"><h3>ðŸ–¥ï¸ Live console</h3><p>Run commands and watch logs from your browser.</p></div>
+    <div class="card"><h3>ðŸ”’ Whitelist & ops</h3><p>Control who joins and who has admin rights.</p></div>
   </div>`;
 }
 function about() {
@@ -138,7 +138,7 @@ let authMode = 'login';
 function login() {
   const reg = authMode === 'register';
   $('#app').innerHTML = `<div style="max-width:420px;margin:40px auto"><div class="card">
-  <div style="text-align:center;margin-bottom:8px"><img src="/logo.png" alt="Nucleon" style="width:64px;height:64px;object-fit:contain"></div>
+  <div style="text-align:center;margin-bottom:8px"><img src="/logo.png" alt="Nucleon" style="width:96px;height:96px;object-fit:contain"></div>
   <h2 style="text-align:center">${reg ? 'Create your Nucleon account' : 'Sign in to Nucleon'}</h2>
   ${reg
     ? `<label>Username</label><input id="lu" autocomplete="username"><label>Email</label><input id="le" type="email" autocomplete="email">`
@@ -165,12 +165,12 @@ async function doAuth() {
 
 /* ---------- server list ---------- */
 async function list() {
-  $('#app').innerHTML = `<p class="empty">Loading…</p>`;
+  $('#app').innerHTML = `<p class="empty">Loadingâ€¦</p>`;
   let S; try { S = await api('GET', '/api/servers'); } catch (e) { return; }
   $('#app').innerHTML =
     `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="margin:0">My Servers</h2><button class="btn g" onclick="newModal()">+ New server</button></div>` +
     (S.length ? S.map(s => `<div class="srv" onclick="location.hash='#/servers/${s.id}'"><span class="dot ${s.status}"></span>
-      <div class="meta"><b>${esc(s.name)}</b><div>${addr(s)} · ${s.status}</div></div>
+      <div class="meta"><b>${esc(s.name)}</b><div>${addr(s)} Â· ${s.status}</div></div>
       <span class="tag">${s.soft} ${s.ver}</span></div>`).join('')
       : `<div class="empty card">No servers yet. Create your first one!</div>`);
 }
@@ -196,7 +196,7 @@ function prev() {
     try {
       const d = await api('GET', '/api/check-name?name=' + encodeURIComponent(n));
       el.style.color = d.ok ? 'var(--acc2)' : 'var(--red)';
-      el.textContent = d.ok ? '✓ ' + d.address + ' is available' : '✗ ' + (d.error || 'Not available');
+      el.textContent = d.ok ? 'âœ“ ' + d.address + ' is available' : 'âœ— ' + (d.error || 'Not available');
     } catch (e) {}
   }, 300);
 }
@@ -210,7 +210,7 @@ async function createServer() {
 /* ---------- server detail ---------- */
 async function detail(id) {
   built = ''; cur = null; tab = 'status'; sig = '';
-  $('#app').innerHTML = `<a href="#/servers" style="color:var(--mut);font-size:14px">← All servers</a>
+  $('#app').innerHTML = `<a href="#/servers" style="color:var(--mut);font-size:14px">â† All servers</a>
   <h2 id="dh" style="margin-top:10px"></h2><div class="tabs" id="tabs"></div><div id="tabc"></div>`;
   poll = setInterval(() => tick(id), 2000);
   tick(id);
@@ -260,7 +260,7 @@ function tStatus(s) {
 const fmt = l => `<div class="${l.startsWith('>') ? 'c' : /WARN|ERROR/.test(l) ? 'w' : l.startsWith('[Nucleon]') ? 'i' : ''}">${esc(l)}</div>`;
 function bConsole() {
   $('#tabc').innerHTML = `<div class="console" id="con"></div>
-  <div class="row"><input id="cmd" placeholder="Type a command (list, say hi, op Steve…)" onkeydown="if(event.key==='Enter')sendCmd()">
+  <div class="row"><input id="cmd" placeholder="Type a command (list, say hi, op Steveâ€¦)" onkeydown="if(event.key==='Enter')sendCmd()">
   <button class="btn" onclick="sendCmd()">Send</button></div>`;
 }
 function uConsole(s) {
@@ -282,7 +282,7 @@ function bPlayers() {
   <label>Add player to whitelist</label><div class="row"><input id="wn" placeholder="Username"><button class="btn" onclick="addWl()">Add</button></div></div></div>`;
 }
 function uPlayers(s) {
-  $('#pl').innerHTML = s.players.map(p => '• ' + esc(p)).join('<br>') || 'Nobody online.';
+  $('#pl').innerHTML = s.players.map(p => 'â€¢ ' + esc(p)).join('<br>') || 'Nobody online.';
   $('#ol').innerHTML = `Ops: ${s.ops.map(esc).join(', ') || 'none'}<br>Whitelist: ${s.wl.map(esc).join(', ') || 'empty'}`;
 }
 async function addWl() {
@@ -311,7 +311,7 @@ async function saveOpts() {
       motd: $('#o_motd').value, gamemode: $('#o_gm').value, difficulty: $('#o_df').value, maxPlayers: $('#o_mp').value,
       pvp: $('#o_pvp').checked, whitelist: $('#o_wl').checked, onlineMode: $('#o_om').checked, crossplay: $('#o_xp').checked
     });
-    $('#osv').textContent = 'Saved ✓'; setTimeout(() => { const b = $('#osv'); if (b) b.textContent = 'Save options'; }, 1500);
+    $('#osv').textContent = 'Saved âœ“'; setTimeout(() => { const b = $('#osv'); if (b) b.textContent = 'Save options'; }, 1500);
   } catch (e) { alert(e.message); }
 }
 
