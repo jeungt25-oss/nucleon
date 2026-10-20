@@ -28,9 +28,11 @@ const CF_TOKEN = process.env.CF_TOKEN || '';
 const CF_ZONE = process.env.CF_ZONE || '';
 const SRV_TARGET = process.env.SRV_TARGET || 'play.' + DOMAIN;
 
-const DATA = path.join(__dirname, 'data');
-const SRV = path.join(__dirname, 'servers');
-const BKP = path.join(__dirname, 'backups');
+/* on Vercel the project folder is read-only, so use /tmp there */
+const ROOT = process.env.VERCEL ? '/tmp' : __dirname;
+const DATA = path.join(ROOT, 'data');
+const SRV = path.join(ROOT, 'servers');
+const BKP = path.join(ROOT, 'backups');
 fs.mkdirSync(DATA, { recursive: true });
 fs.mkdirSync(SRV, { recursive: true });
 fs.mkdirSync(BKP, { recursive: true });
@@ -739,10 +741,15 @@ app.delete('/api/servers/:id/subusers/:name', auth, (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(WEB_PORT, '0.0.0.0', () => console.log(`Nucleon running on port ${WEB_PORT}`));
+/* export for Vercel, listen normally when run with "node server.js" */
+module.exports = app;
 
-/* stop all servers cleanly on Ctrl+C */
-process.on('SIGINT', () => {
-  Object.values(db.servers).forEach(s => stopServer(s));
-  setTimeout(() => process.exit(0), 4000);
-});
+if (require.main === module) {
+  app.listen(WEB_PORT, '0.0.0.0', () => console.log(`Nucleon running on port ${WEB_PORT}`));
+
+  /* stop all servers cleanly on Ctrl+C */
+  process.on('SIGINT', () => {
+    Object.values(db.servers).forEach(s => stopServer(s));
+    setTimeout(() => process.exit(0), 4000);
+  });
+}
