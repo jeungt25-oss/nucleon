@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,13 +6,13 @@
 <title>Nucleon · by Creed Inc.</title>
 <link rel="icon" href="/logo.png">
 <style>
-:root{--bg:#0e1116;--panel:#171c24;--panel2:#1e2530;--line:#2a3340;--txt:#e8edf3;--mut:#8a97a8;--acc:#7c5cff;--acc2:#27d3a2;--red:#ff5c6c;--yel:#ffc24b}
+:root{--bg:#0e1116;--panel:#171c24;--panel2:#1e2530;--line:#2a3340;--txt:#e8edf3;--mut:#8a97a8;--acc:#7c5cff;--acc2:#27d3a2;--red:#ff5c6c;--yel:#ffc24b;--blue:#4d8dff;--blue-soft:rgba(77,141,255,.14)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 a{color:inherit;text-decoration:none}
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--line);background:#0e1116ee;position:sticky;top:0;backdrop-filter:blur(8px);z-index:5}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.5px}
-.logo img{width:36px;height:36px;object-fit:contain}
+.logo img{width:48px;height:48px;object-fit:contain}
 .logo small{color:var(--mut);font-weight:500;font-size:12px}
 nav{display:flex;gap:6px;align-items:center}
 nav a{padding:8px 14px;border-radius:8px;color:var(--mut);font-size:14px;cursor:pointer}
@@ -21,8 +21,9 @@ nav a:hover,nav a.on{background:var(--panel);color:var(--txt)}
 nav a.btn{color:#fff}
 .btn:hover{filter:brightness(1.12)}
 .btn.g{background:var(--acc2);color:#04241b}.btn.r{background:var(--red)}.btn.o{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
+.btn.s{padding:6px 12px;font-size:12px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-main{max-width:1050px;margin:0 auto;padding:32px 20px 80px}
+main{max-width:1200px;margin:0 auto;padding:32px 20px 80px}
 .hero{text-align:center;padding:70px 10px 40px}
 .hero h1{font-size:clamp(34px,6vw,60px);line-height:1.05;margin-bottom:16px}
 .hero h1 span{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -33,7 +34,7 @@ main{max-width:1050px;margin:0 auto;padding:32px 20px 80px}
 h2{font-size:24px;margin-bottom:16px}
 .srv{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:12px;cursor:pointer}
 .srv:hover{border-color:var(--acc)}
-.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.dot{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
 .offline{background:var(--red)}.online{background:var(--acc2);box-shadow:0 0 10px var(--acc2)}.starting,.stopping{background:var(--yel);animation:p 1s infinite}
 @keyframes p{50%{opacity:.35}}
 .srv .meta{flex:1}.srv .meta b{font-size:17px}.srv .meta div{color:var(--mut);font-size:13px;margin-top:3px}
@@ -41,21 +42,62 @@ h2{font-size:24px;margin-bottom:16px}
 label{display:block;font-size:13px;color:var(--mut);margin:14px 0 6px}
 input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:11px 12px;border-radius:10px;font-size:14px;font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);border-color:transparent}
-.tabs{display:flex;gap:6px;margin:20px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.tabs a{padding:10px 16px;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;font-size:14px}
-.tabs a.on{color:var(--txt);border-color:var(--acc)}
-.console{background:#07090c;border:1px solid var(--line);border-radius:12px;height:300px;overflow:auto;padding:14px;font:12.5px/1.6 ui-monospace,Consolas,monospace;color:#b9c4d2}
+.console{background:#07090c;border:1px solid var(--line);border-radius:12px;height:340px;overflow:auto;padding:14px;font:12.5px/1.6 ui-monospace,Consolas,monospace;color:#b9c4d2}
 .console .i{color:#6fe3c0}.console .w{color:var(--yel)}.console .c{color:#9db4ff}
 .row{display:flex;gap:10px;margin-top:10px}
 .big{text-align:center;padding:28px}.big .st{font-size:28px;font-weight:800;margin:10px 0}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:700px){.two{grid-template-columns:1fr}nav a:not(.btn){display:none}}
 .toggle{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
 .toggle input{width:auto}
 footer{border-top:1px solid var(--line);padding:26px;text-align:center;color:var(--mut);font-size:13px}
 .empty{text-align:center;color:var(--mut);padding:40px}
 .modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:20;padding:20px}
 .modal .card{width:100%;max-width:420px}
+
+/* server sidebar layout */
+.shell{display:grid;grid-template-columns:250px 1fr;gap:24px;align-items:start}
+.side{position:sticky;top:90px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.cur{background:var(--blue-soft);border:1px solid rgba(77,141,255,.4);border-radius:12px;padding:12px 14px;margin-bottom:6px}
+.cur small{display:block;color:#8fb4ff;font-size:11px;letter-spacing:.8px;text-transform:uppercase}
+.cur b{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:15px;word-break:break-word}
+.grp{color:var(--mut);font-size:11px;letter-spacing:.8px;text-transform:uppercase;margin:16px 8px 6px}
+.side a.it{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;color:#aab6c8;font-size:14px;transition:background .15s,color .15s}
+.side a.it:hover{background:var(--panel2);color:var(--txt)}
+.side a.it.on{background:var(--blue-soft);color:var(--blue);font-weight:600;box-shadow:inset 3px 0 0 var(--blue)}
+.side a.it i{width:22px;height:22px;display:grid;place-items:center;flex:none}
+.side a.it svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side a.it svg .f{fill:none;transition:fill .15s}
+.side a.it.on svg .f{fill:rgba(77,141,255,.3)}
+.frow{display:flex;align-items:center;gap:12px;padding:9px 6px;border-bottom:1px solid var(--line);font-size:14px}
+.frow .fn{flex:1;cursor:pointer;word-break:break-all}
+.frow .fn:hover{color:var(--acc2)}
+.frow .fs{color:var(--mut);font-size:12px;min-width:70px;text-align:right}
+.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.item img{width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;background:var(--panel2)}
+.item .t{flex:1;min-width:0}.item .t b{font-size:14px}.item .t div{color:var(--mut);font-size:12.5px;margin-top:2px}
+.note{color:var(--mut);font-size:13px;margin-top:10px;line-height:1.5}
+.pbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.ptools{display:flex;gap:10px;margin-bottom:18px}
+.pdd{position:relative}
+.pdd>button{min-width:190px;height:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:0 14px;border-radius:10px;font-size:14px;cursor:pointer;font-family:inherit}
+.pmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:6;min-width:220px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 30px #0008}
+.pmenu button{display:flex;justify-content:space-between;width:100%;background:none;border:0;color:var(--txt);padding:9px 10px;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;text-align:left}
+.pmenu button:hover,.pmenu button.on{background:var(--panel2)}
+.pmenu span+span{color:var(--mut)}
+.prow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:0}
+.pav{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-weight:700;color:#fff;flex:none}
+.pwho{flex:1;min-width:0;word-break:break-word}.pwho b{display:block;font-size:14px}.pwho small{color:var(--mut);font-size:12.5px}
+.ptags{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.pt{display:inline-flex;align-items:center;gap:2px;font-size:12px;padding:3px 3px 3px 10px;border-radius:99px;border:1px solid currentColor}
+.pt button{background:none;border:0;color:inherit;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
+.pt button:hover{background:var(--panel2)}
+.pt.wl{color:var(--acc2)}.pt.op{color:var(--yel)}.pt.ban{color:var(--red)}
+.pon{width:8px;height:8px;border-radius:50%;background:var(--acc2);display:inline-block;margin-right:6px}
+.perr{color:var(--red);font-size:13px;min-height:18px;margin-top:8px}
+.plnk{background:none;border:0;color:var(--mut);text-decoration:underline;cursor:pointer;font:inherit;font-size:13px;margin-top:10px}
+@media(max-width:800px){.ptools{flex-direction:column}.pdd>button{min-height:44px}.pmenu{left:0;right:0}}
+@media(max-width:800px){.two{grid-template-columns:1fr}nav a:not(.btn){display:none}.shell{grid-template-columns:1fr}.side{position:static}}
 </style>
 </head>
 <body>
@@ -69,14 +111,30 @@ footer{border-top:1px solid var(--line);padding:26px;text-align:center;color:var
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const SOFT = ['Paper', 'Vanilla'];
-const VERS = ['1.21.4', '1.21.1', '1.20.6', '1.20.4', '1.19.4', '1.18.2'];
 const LABEL = { offline: 'Offline', starting: 'Starting…', online: 'Online', stopping: 'Stopping…' };
+const FB = ['1.21.4', '1.21.1', '1.20.6', '1.20.4', '1.19.4', '1.18.2'];
+let SW = { Paper: FB, Purpur: FB, Fabric: FB, Vanilla: FB };
+const SDESC = {
+  Paper: 'Fast and stable, supports plugins. Best for most servers.',
+  Purpur: 'Paper with extra gameplay options. Supports plugins.',
+  Fabric: 'Lightweight mod loader. Install mods from the Mods tab.',
+  Vanilla: 'The official Mojang server. No plugins or mods.'
+};
+const ADDON = ['Paper', 'Purpur', 'Fabric'];
 let token = localStorage.getItem('nu_token'), me = localStorage.getItem('nu_name');
-let tab = 'status', poll = null, cur = null, built = '', sig = '', HOST = location.hostname;
-let DOMAIN = 'creeds.inc';
+let tab = 'overview', poll = null, cur = null, built = '', sig = '', shellId = null, HOST = location.hostname;
+let DOMAIN = 'nucleon.host';
 $('#yr').textContent = new Date().getFullYear();
 fetch('/api/config').then(r => r.json()).then(c => { if (c.host) HOST = c.host; if (c.domain) DOMAIN = c.domain; }).catch(() => {});
+fetch('/api/software').then(r => r.json()).then(d => { if (d.software) SW = d.software; }).catch(() => {});
+
+function verOpts(soft, sel) {
+  const l = (SW[soft] || []).slice();
+  if (sel && !l.includes(sel)) l.unshift(sel);
+  return l.map(v => `<option ${v === sel ? 'selected' : ''}>${v}</option>`).join('');
+}
+function fillVers(sid, vid) { $('#' + vid).innerHTML = verOpts($('#' + sid).value); }
+const softOpts = sel => Object.keys(SW).map(x => `<option ${x === sel ? 'selected' : ''}>${x}</option>`).join('');
 
 async function api(method, url, body) {
   const r = await fetch(url, {
@@ -93,17 +151,23 @@ function logout() {
   localStorage.removeItem('nu_token'); localStorage.removeItem('nu_name');
   token = me = null; location.hash = '#/login'; route();
 }
-const addr = s => s.sub ? esc(s.sub) + '.' + esc(DOMAIN) : esc(HOST) + ':' + s.port;
+const rawAddr = s => s.sub ? s.sub + '.' + DOMAIN : HOST + ':' + s.port;
+const addr = s => esc(rawAddr(s));
 
 /* ---------- router ---------- */
 function route() {
-  clearInterval(poll);
-  const [_, p1, p2] = (location.hash.slice(1) || '/').split('/');
+  const [_, p1, p2, p3] = (location.hash.slice(1) || '/').split('/');
+  if (p1 === 'servers' && p2 && token && shellId === p2) {
+    renderNav('servers'); tab = p3 || 'overview'; built = ''; sig = '';
+    if (cur) { renderSide(); draw(); }
+    return;
+  }
+  clearInterval(poll); shellId = null;
   renderNav(p1 || '');
   if (!p1) return home();
   if (p1 === 'about') return about();
   if (p1 === 'login' || !token) return login();
-  if (p1 === 'servers') return p2 ? detail(p2) : list();
+  if (p1 === 'servers') return p2 ? detail(p2, p3) : list();
   home();
 }
 function renderNav(c) {
@@ -124,7 +188,7 @@ function home() {
   </section>
   <div class="grid">
     <div class="card"><h3>⚡ Instant setup</h3><p>Name it, pick a version, hit start. No technical knowledge needed.</p></div>
-    <div class="card"><h3>🧩 Paper & Vanilla</h3><p>Choose optimized Paper or the classic Vanilla server software.</p></div>
+    <div class="card"><h3>🧩 Paper, Purpur, Fabric & Vanilla</h3><p>Choose the server software that fits how you want to play.</p></div>
     <div class="card"><h3>🖥️ Live console</h3><p>Run commands and watch logs from your browser.</p></div>
     <div class="card"><h3>🔒 Whitelist & ops</h3><p>Control who joins and who has admin rights.</p></div>
   </div>`;
@@ -138,7 +202,7 @@ let authMode = 'login';
 function login() {
   const reg = authMode === 'register';
   $('#app').innerHTML = `<div style="max-width:420px;margin:40px auto"><div class="card">
-  <div style="text-align:center;margin-bottom:8px"><img src="/logo.png" alt="Nucleon" style="width:64px;height:64px;object-fit:contain"></div>
+  <div style="text-align:center;margin-bottom:8px"><img src="/logo.png" alt="Nucleon" style="width:96px;height:96px;object-fit:contain"></div>
   <h2 style="text-align:center">${reg ? 'Create your Nucleon account' : 'Sign in to Nucleon'}</h2>
   ${reg
     ? `<label>Username</label><input id="lu" autocomplete="username"><label>Email</label><input id="le" type="email" autocomplete="email">`
@@ -170,22 +234,25 @@ async function list() {
   $('#app').innerHTML =
     `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="margin:0">My Servers</h2><button class="btn g" onclick="newModal()">+ New server</button></div>` +
     (S.length ? S.map(s => `<div class="srv" onclick="location.hash='#/servers/${s.id}'"><span class="dot ${s.status}"></span>
-      <div class="meta"><b>${esc(s.name)}</b><div>${addr(s)} · ${s.status}</div></div>
-      <span class="tag">${s.soft} ${s.ver}</span></div>`).join('')
+      <div class="meta"><b>${esc(s.name)}</b><div>${addr(s)} · ${s.status}${s.isOwner ? '' : ' · shared by ' + esc(s.owner)}</div></div>
+      <span class="tag">${esc(s.soft)} ${esc(s.ver)}</span></div>`).join('')
       : `<div class="empty card">No servers yet. Create your first one!</div>`);
 }
 function newModal() {
+  const first = Object.keys(SW)[0];
   const m = document.createElement('div'); m.className = 'modal'; m.id = 'modal';
   m.innerHTML = `<div class="card"><h2>New server</h2>
   <label>Server name</label><input id="nn" placeholder="My Survival World" oninput="prev()">
   <p id="nprev" style="font-size:13px;margin-top:6px;min-height:18px"></p>
-  <label>Software</label><select id="ns">${SOFT.map(x => `<option>${x}</option>`).join('')}</select>
-  <label>Version</label><select id="nv">${VERS.map(x => `<option>${x}</option>`).join('')}</select>
+  <label>Software</label><select id="ns" onchange="fillVers('ns','nv');hint()">${softOpts(first)}</select>
+  <p id="nhint" class="note" style="margin-top:6px">${esc(SDESC[first] || '')}</p>
+  <label>Version</label><select id="nv">${verOpts(first)}</select>
   <div class="toggle" style="margin-top:10px"><span>I accept the <a href="https://aka.ms/MinecraftEULA" target="_blank" style="text-decoration:underline">Minecraft EULA</a></span><input type="checkbox" id="ne"></div>
   <p id="nerr" style="color:var(--red);font-size:13px;margin-top:8px"></p>
   <div class="row"><button class="btn o" style="flex:1" onclick="$('#modal').remove()">Cancel</button><button class="btn g" style="flex:1" onclick="createServer()">Create</button></div></div>`;
   document.body.appendChild(m);
 }
+function hint() { const h = $('#nhint'); if (h) h.textContent = SDESC[$('#ns').value] || ''; }
 let prevT;
 function prev() {
   clearTimeout(prevT);
@@ -207,42 +274,82 @@ async function createServer() {
   } catch (e) { $('#nerr').textContent = e.message; }
 }
 
-/* ---------- server detail ---------- */
-async function detail(id) {
-  built = ''; cur = null; tab = 'status'; sig = '';
-  $('#app').innerHTML = `<a href="#/servers" style="color:var(--mut);font-size:14px">← All servers</a>
-  <h2 id="dh" style="margin-top:10px"></h2><div class="tabs" id="tabs"></div><div id="tabc"></div>`;
+/* ---------- sidebar icons (line icons, "f" = shape that fills when active) ---------- */
+const ICON = {
+  overview: '<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>',
+  console: '<rect class="f" x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3"/><line x1="13" y1="15" x2="17" y2="15"/>',
+  files: '<path class="f" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  marketplace: '<path class="f" d="M5 12v8h14v-8"/><path d="M4 9l1-5h14l1 5"/><path d="M4 9a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0"/><path d="M10 20v-5h4v5"/>',
+  helpdesk: '<circle class="f" cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><line x1="12" y1="17" x2="12" y2="17.01"/>',
+  players: '<circle class="f" cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5a5 5 0 0 1 4.5 5"/>',
+  software: '<polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/><line x1="14" y1="5" x2="10" y2="19"/>',
+  modpacks: '<path class="f" d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5"/><line x1="12" y1="12" x2="12" y2="21"/>',
+  plugins: '<path class="f" d="M10 4a2 2 0 1 1 4 0v2h4a1 1 0 0 1 1 1v4h-2a2 2 0 1 0 0 4h2v4a1 1 0 0 1-1 1h-4v-2a2 2 0 1 0-4 0v2H6a1 1 0 0 1-1-1v-4h2a2 2 0 1 0 0-4H5V7a1 1 0 0 1 1-1h4z"/>',
+  subusers: '<circle class="f" cx="8" cy="15" r="4"/><path d="M11 12l9-9"/><path d="M16 7l3 3"/>',
+  backups: '<path class="f" d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13z"/><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  network: '<circle class="f" cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/>',
+  options: '<line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle class="f" cx="9" cy="6" r="2"/><circle class="f" cx="15" cy="12" r="2"/><circle class="f" cx="8" cy="18" r="2"/>',
+  settings: '<path class="f" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'
+};
+
+/* ---------- server page: sidebar + tabs ---------- */
+const NAV = [
+  ['Your Server', [['overview', 'Overview'], ['console', 'Console'], ['files', 'Files'], ['marketplace', 'Marketplace'], ['helpdesk', 'Helpdesk']]],
+  ['Tools', [['players', 'Players'], ['software', 'Software'], ['modpacks', 'Modpacks'], ['plugins', 'Plugins'], ['subusers', 'Subusers'], ['backups', 'Backups']]],
+  ['Config', [['network', 'Network'], ['options', 'Options'], ['settings', 'Settings']]]
+];
+const TABS = NAV.flatMap(g => g[1].map(i => i[0]));
+
+async function detail(id, t) {
+  shellId = id; built = ''; cur = null; tab = t || 'overview'; sig = '';
+  $('#app').innerHTML = `<div class="shell"><aside class="side" id="side"></aside><section id="tabc"></section></div>`;
   poll = setInterval(() => tick(id), 2000);
   tick(id);
 }
 async function tick(id) {
   let s;
   try { s = await api('GET', '/api/servers/' + id); } catch (e) { if (token) location.hash = '#/servers'; return; }
-  if (location.hash !== '#/servers/' + id) return;
+  if (!location.hash.startsWith('#/servers/' + id)) return;
   cur = s;
-  $('#dh').innerHTML = `${esc(s.name)} <span class="tag">${s.soft} ${s.ver}</span>`;
-  $('#tabs').innerHTML = [['status', 'Status'], ['console', 'Console'], ['players', 'Players'], ['options', 'Options'], ['danger', 'Settings']]
-    .map(t => `<a class="${tab === t[0] ? 'on' : ''}" onclick="setTab('${t[0]}')">${t[1]}</a>`).join('');
+  renderSide();
   draw();
 }
-function setTab(t) { tab = t; built = ''; sig = ''; if (cur) tick(cur.id); }
+function renderSide() {
+  const s = cur, base = '#/servers/' + s.id + '/';
+  if (!TABS.includes(tab)) tab = 'overview';
+  $('#side').innerHTML =
+    `<a href="#/servers" style="display:block;color:var(--mut);font-size:13px;margin:2px 4px 10px">← All servers</a>
+     <div class="cur"><small>Currently managing</small><b><span class="dot ${s.status}"></span>${esc(s.name)}</b></div>` +
+    NAV.map(g => `<div class="grp">${g[0]}</div>` +
+      g[1].map(i => `<a class="it ${tab === i[0] ? 'on' : ''}" href="${base}${i[0]}"><i><svg viewBox="0 0 24 24">${ICON[i[0]]}</svg></i>${i[0] === 'plugins' && s.soft === 'Fabric' ? 'Mods' : i[1]}</a>`).join('')).join('');
+}
+const BUILD = {
+  console: bConsole, files: bFiles, helpdesk: bHelp, players: bPlayers, software: bSoftware, plugins: bPlugins,
+  subusers: bSubusers, backups: bBackups, network: bNetwork, options: bOptions, settings: bSettings,
+  marketplace: () => soon('Marketplace', '🛒', 'One-click server templates (survival, skyblock, minigames) are coming soon.'),
+  modpacks: () => soon('Modpacks', '📦', 'Installing Fabric and Forge modpacks is coming soon.')
+};
 function draw() {
   const s = cur;
-  if (tab === 'status') {
-    const g = JSON.stringify([s.status, s.players, s.opts, s.name, s.port, s.bport, s.sub]);
-    if (built === 'status' && g === sig) return;
-    built = 'status'; sig = g; return tStatus(s);
+  if (!TABS.includes(tab)) tab = 'overview';
+  if (tab === 'overview') {
+    const g = JSON.stringify([s.status, s.players, s.opts, s.name, s.port, s.bport, s.sub, s.soft, s.ver]);
+    if (built === 'overview' && g === sig) return;
+    built = 'overview'; sig = g; return tStatus(s);
   }
-  if (built !== tab) { built = tab; ({ console: bConsole, players: bPlayers, options: bOptions, danger: bDanger })[tab](s); }
+  if (built !== tab) { built = tab; BUILD[tab](s); }
   if (tab === 'console') uConsole(s);
   if (tab === 'players') uPlayers(s);
 }
 async function act(id, a) { try { await api('POST', `/api/servers/${id}/${a}`); tick(id); } catch (e) { alert(e.message); } }
+const fsz = n => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(1) + ' MB';
+function copyTxt(b) { navigator.clipboard.writeText(b.dataset.v).then(() => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1200); }); }
 
+/* overview */
 function tStatus(s) {
   const on = s.status === 'online', off = s.status === 'offline';
-  $('#tabc').innerHTML = `<div class="two"><div class="card big">
-    <span class="dot ${s.status}" style="display:inline-block;width:18px;height:18px"></span>
+  $('#tabc').innerHTML = `<h2>Overview</h2><div class="two"><div class="card big">
+    <span class="dot ${s.status}" style="width:18px;height:18px"></span>
     <div class="st">${LABEL[s.status]}</div>
     <div style="color:var(--mut);font-size:14px">Address: ${addr(s)}</div>
     ${s.opts.crossplay && s.bport ? `<div style="color:var(--mut);font-size:14px">Bedrock: ${esc(HOST)} port ${s.bport}</div>` : ''}
@@ -251,6 +358,7 @@ function tStatus(s) {
       <button class="btn r" ${on ? '' : 'disabled'} onclick="act('${s.id}','stop')">Stop</button>
       <button class="btn o" ${on ? '' : 'disabled'} onclick="act('${s.id}','restart')">Restart</button></div></div>
     <div class="card"><h3>Info</h3><p style="margin-top:10px;line-height:2">
+      Software: <b>${esc(s.soft)} ${esc(s.ver)}</b><br>
       Players: <b>${s.players.length}/${s.opts.maxPlayers}</b><br>Gamemode: <b>${s.opts.gamemode}</b><br>
       Difficulty: <b>${s.opts.difficulty}</b><br>MOTD: <b>${esc(s.opts.motd)}</b><br>
       Whitelist: <b>${s.opts.whitelist ? 'on' : 'off'}</b></p></div></div>`;
@@ -259,7 +367,7 @@ function tStatus(s) {
 /* console */
 const fmt = l => `<div class="${l.startsWith('>') ? 'c' : /WARN|ERROR/.test(l) ? 'w' : l.startsWith('[Nucleon]') ? 'i' : ''}">${esc(l)}</div>`;
 function bConsole() {
-  $('#tabc').innerHTML = `<div class="console" id="con"></div>
+  $('#tabc').innerHTML = `<h2>Console</h2><div class="console" id="con"></div>
   <div class="row"><input id="cmd" placeholder="Type a command (list, say hi, op Steve…)" onkeydown="if(event.key==='Enter')sendCmd()">
   <button class="btn" onclick="sendCmd()">Send</button></div>`;
 }
@@ -274,36 +382,316 @@ async function sendCmd() {
   try { await api('POST', `/api/servers/${cur.id}/command`, { cmd: c }); tick(cur.id); } catch (e) { alert(e.message); }
 }
 
-/* players */
-function bPlayers() {
-  $('#tabc').innerHTML = `<div class="two">
-  <div class="card"><h3>Online</h3><p id="pl" style="margin-top:8px"></p></div>
-  <div class="card"><h3>Operators & whitelist</h3><p id="ol" style="margin-top:8px"></p>
-  <label>Add player to whitelist</label><div class="row"><input id="wn" placeholder="Username"><button class="btn" onclick="addWl()">Add</button></div></div></div>`;
+/* files */
+let fpath = '', fitems = [], fileOpen = '';
+const fjoin = n => fpath ? fpath + '/' + n : n;
+function bFiles() {
+  fpath = '';
+  $('#tabc').innerHTML = `<h2>Files</h2><div class="card"><div id="fcrumb" style="color:var(--mut);font-size:13px;margin-bottom:10px"></div><div id="flist"></div></div><div id="fedit"></div>`;
+  loadFiles();
 }
-function uPlayers(s) {
-  $('#pl').innerHTML = s.players.map(p => '• ' + esc(p)).join('<br>') || 'Nobody online.';
-  $('#ol').innerHTML = `Ops: ${s.ops.map(esc).join(', ') || 'none'}<br>Whitelist: ${s.wl.map(esc).join(', ') || 'empty'}`;
+async function loadFiles() {
+  try {
+    const d = await api('GET', `/api/servers/${cur.id}/files?path=${encodeURIComponent(fpath)}`);
+    fitems = d.items;
+    const el = $('#flist'); if (!el) return;
+    $('#fcrumb').textContent = '/' + fpath;
+    el.innerHTML = (fpath ? `<div class="frow"><span class="fn" onclick="upDir()">📁 ..</span></div>` : '') +
+      (fitems.length ? fitems.map((f, i) => `<div class="frow">
+        <span class="fn" onclick="${f.dir ? `openDir(${i})` : `openFile(${i})`}">${f.dir ? '📁' : '📄'} ${esc(f.name)}</span>
+        <span class="fs">${f.dir ? '' : fsz(f.size)}</span>
+        ${f.dir ? '' : `<button class="btn o s" onclick="openFile(${i})">Edit</button>`}
+        <button class="btn r s" onclick="delFile(${i})">Delete</button></div>`).join('')
+        : `<p class="empty">Empty. Start the server once to generate its files.</p>`);
+  } catch (e) { alert(e.message); }
 }
-async function addWl() {
-  const n = $('#wn').value.trim(); if (!n) return;
-  try { await api('POST', `/api/servers/${cur.id}/command`, { cmd: 'whitelist add ' + n }); $('#wn').value = ''; tick(cur.id); }
+function openDir(i) { fpath = fjoin(fitems[i].name); $('#fedit').innerHTML = ''; loadFiles(); }
+function upDir() { fpath = fpath.split('/').slice(0, -1).join('/'); $('#fedit').innerHTML = ''; loadFiles(); }
+async function openFile(i) {
+  const p = fjoin(fitems[i].name);
+  try {
+    const d = await api('GET', `/api/servers/${cur.id}/file?path=${encodeURIComponent(p)}`);
+    $('#fedit').innerHTML = `<div class="card" style="margin-top:16px"><h3>${esc(p)}</h3>
+      <textarea id="fe" spellcheck="false" style="height:320px;margin-top:10px;font:12.5px/1.5 ui-monospace,Consolas,monospace"></textarea>
+      <div class="row"><button class="btn g" onclick="saveFile()">Save</button><button class="btn o" onclick="$('#fedit').innerHTML=''">Close</button></div>
+      <p class="note">Changes apply the next time the server starts.</p></div>`;
+    $('#fe').value = d.content; fileOpen = p;
+  } catch (e) { alert(e.message); }
+}
+async function saveFile() {
+  try { await api('PUT', `/api/servers/${cur.id}/file`, { path: fileOpen, content: $('#fe').value }); alert('Saved'); }
   catch (e) { alert(e.message); }
+}
+async function delFile(i) {
+  const f = fitems[i];
+  if (!confirm('Delete ' + f.name + (f.dir ? ' and everything in it' : '') + '?')) return;
+  try { await api('DELETE', `/api/servers/${cur.id}/file?path=${encodeURIComponent(fjoin(f.name))}`); loadFiles(); }
+  catch (e) { alert(e.message); }
+}
+
+/* placeholders + helpdesk */
+function soon(title, icon, text) {
+  $('#tabc').innerHTML = `<h2>${title}</h2><div class="card big"><div style="font-size:42px">${icon}</div><div class="st">Coming soon</div><p style="max-width:420px;margin:0 auto">${text}</p></div>`;
+}
+function bHelp() {
+  $('#tabc').innerHTML = `<h2>Helpdesk</h2>
+  <div class="card"><h3>How do my friends join?</h3><p>Share the address shown on the Overview or Network tab. Java players type it in Multiplayer. For Bedrock players, turn on Crossplay in Options (Paper or Purpur only).</p></div>
+  <div class="card" style="margin-top:12px"><h3>My server will not start</h3><p>Open the Console and read the last lines. Most start failures come from a missing or too old Java install, or a plugin or mod that does not match your Minecraft version.</p></div>
+  <div class="card" style="margin-top:12px"><h3>Which software should I pick?</h3><p>Paper is the safe default. Purpur is Paper with extra options. Fabric is for mods. Vanilla is the plain official server.</p></div>
+  <div class="card" style="margin-top:12px"><h3>How do I add plugins or mods?</h3><p>Use Paper or Purpur for plugins, or Fabric for mods. Open the Plugins (or Mods) tab and install from the list. For Fabric, install Fabric API first. Restart the server afterwards.</p></div>
+  <div class="card" style="margin-top:12px"><h3>How do I back up my world?</h3><p>Go to Backups and press Create backup. Nucleon keeps your latest 3 backups.</p></div>
+  <div class="card" style="margin-top:12px"><h3>Can a friend help me manage it?</h3><p>Yes. Add their Nucleon username under Subusers. They can start, stop and use the console, but cannot delete the server.</p></div>`;
+}
+
+/* players */
+const PK = [['all', 'All players'], ['wl', 'Whitelist'], ['op', 'Operators'], ['ban', 'Banned players'], ['ip', 'Banned IPs']];
+const PM = {
+  wl: { t: 'Add to whitelist', b: 'Add to whitelist' },
+  op: { t: 'Add operator', b: 'Add operator' },
+  ban: { t: 'Ban player', b: 'Ban player', reason: 1, red: 1 },
+  ip: { t: 'Ban IP address', b: 'Ban IP', reason: 1, red: 1, ip: 1 }
+};
+const PTAG = { wl: 'Whitelisted', op: 'Operator', ban: 'Banned' };
+const PRM = { wl: 'Remove from whitelist', op: 'Remove operator', ban: 'Unban' };
+let PD = { players: [], bannedIps: [] }, pf = 'all', pk = null, plist = false, psig = '', pbusy = false;
+const PCOL = n => { let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) % 360; return 'hsl(' + h + ' 45% 42%)'; };
+
+function bPlayers() {
+  pf = 'all'; psig = ''; PD = { players: [], bannedIps: [] };
+  const b = (k, t) => `<button class="btn o" onclick="pOpen('${k}')">${t}</button>`;
+  $('#tabc').innerHTML = `<h2>Players</h2>
+  <div class="pbar">${b('wl', 'Add to whitelist')}${b('op', 'Add operator')}${b('ban', 'Ban player')}${b('ip', 'Banned IPs')}</div>
+  <div class="ptools">
+    <div style="flex:1"><input id="pq" placeholder="Search for a player name or IP" oninput="pDraw()"></div>
+    <div class="pdd"><button id="pddb" onclick="pMenu(event)"><span id="pddl">All players</span><span>▾</span></button><div class="pmenu" id="pmenu" hidden></div></div>
+  </div>
+  <div class="card"><h3 id="ptitle">All players</h3><div id="plist"></div></div>
+  <p class="note" id="pnote"></p>
+  <div id="pmodal"></div>`;
+  pLoad();
+}
+function uPlayers() { pLoad(); }
+async function pLoad() {
+  if (pbusy || !cur) return;
+  pbusy = true;
+  try {
+    const d = await api('GET', `/api/servers/${cur.id}/players`);
+    const g = JSON.stringify(d);
+    if (g !== psig) { psig = g; PD = d; pDraw(); }
+  } catch (e) { /* the next refresh retries */ }
+  pbusy = false;
+}
+function pDraw() {
+  if (!$('#plist')) return;
+  const q = ($('#pq').value || '').trim().toLowerCase();
+  const P = PD.players;
+  const c = { all: P.length, wl: P.filter(p => p.wl).length, op: P.filter(p => p.op).length, ban: P.filter(p => p.ban).length, ip: PD.bannedIps.length };
+  const lab = PK.find(k => k[0] === pf)[1];
+  $('#pddl').textContent = lab; $('#ptitle').textContent = lab;
+  $('#pmenu').innerHTML = PK.map(k => `<button class="${k[0] === pf ? 'on' : ''}" onclick="pSet('${k[0]}')"><span>${k[1]}</span><span>${c[k[0]]}</span></button>`).join('');
+  let h;
+  if (pf === 'ip') {
+    h = PD.bannedIps.filter(r => r.ip.toLowerCase().includes(q)).map(r =>
+      `<div class="prow"><div class="pav" style="background:var(--red)">IP</div><div class="pwho"><b>${esc(r.ip)}</b><small>${esc(r.reason || 'No reason given')}</small></div><button class="btn o s" data-ip="${esc(r.ip)}" onclick="pUnIp(this)">Unban</button></div>`).join('');
+  } else {
+    h = P.filter(p => (pf === 'all' || p[pf]) && p.name.toLowerCase().includes(q))
+      .sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name)).map(p => {
+        const tags = ['wl', 'op', 'ban'].filter(k => p[k]).map(k =>
+          `<span class="pt ${k}">${PTAG[k]}<button data-k="${k}" data-n="${esc(p.name)}" title="${PRM[k]}" aria-label="${PRM[k]}: ${esc(p.name)}" onclick="pRm(this)">×</button></span>`).join('');
+        const sub = p.ban && p.reason ? esc(p.reason) : p.online ? '<span class="pon"></span>Online now' : 'Offline';
+        return `<div class="prow"><div class="pav" style="background:${PCOL(p.name)}">${esc(p.name[0].toUpperCase())}</div><div class="pwho"><b>${esc(p.name)}</b><small>${sub}</small></div><div class="ptags">${tags}</div></div>`;
+      }).join('');
+  }
+  if (!h) {
+    const none = { all: 'No players yet', wl: 'Nobody is whitelisted', op: 'No operators', ban: 'No banned players', ip: 'No banned IPs' }[pf];
+    const k = pf === 'all' ? 'wl' : pf;
+    h = `<div class="empty"><b style="color:var(--txt)">${q ? 'No matches' : none}</b><p style="margin:6px 0 16px">${q ? 'Try a different name.' : 'Players show up here after they join, or add a username.'}</p><button class="btn" onclick="pOpen('${k}')">${PM[k].b}</button></div>`;
+  }
+  $('#plist').innerHTML = h;
+}
+function pSet(k) { pf = k; $('#pmenu').hidden = true; pDraw(); }
+function pMenu(e) { e.stopPropagation(); const m = $('#pmenu'); m.hidden = !m.hidden; }
+document.addEventListener('click', () => { const m = $('#pmenu'); if (m) m.hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') pClose(); });
+
+function pOpen(k) {
+  pk = k; plist = false; const m = PM[k];
+  $('#pmodal').innerHTML = `<div class="modal" onmousedown="if(event.target===this)pClose()"><div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:20px">${m.t}</h3><button class="btn o s" onclick="pClose()" aria-label="Close">✕</button></div>
+    <div id="p1"><label>${m.ip ? 'IP address' : 'Username'}</label><input id="pi" autocomplete="off" placeholder="${m.ip ? 'Enter an IPv4 or IPv6 address' : 'Enter a Minecraft username'}" onkeydown="if(event.key==='Enter')pSubmit()"></div>
+    <div id="pn" hidden><label>One per line</label><textarea id="pa" rows="5"></textarea></div>
+    <button class="plnk" id="psw" onclick="pSwap()">or paste a text list</button>
+    ${m.reason ? '<label>Reason (optional)</label><input id="pr" maxlength="100" autocomplete="off">' : ''}
+    <div class="perr" id="pe" role="alert"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn o" onclick="pClose()">Cancel</button><button class="btn ${m.red ? 'r' : ''}" onclick="pSubmit()">${m.b}</button></div>
+  </div></div>`;
+  $('#pi').focus();
+}
+function pClose() { const m = $('#pmodal'); if (m) m.innerHTML = ''; pk = null; }
+function pSwap() {
+  plist = !plist; $('#p1').hidden = plist; $('#pn').hidden = !plist;
+  $('#psw').textContent = plist ? 'or enter a single entry' : 'or paste a text list';
+  (plist ? $('#pa') : $('#pi')).focus();
+}
+async function pSubmit() {
+  const raw = plist ? $('#pa').value : $('#pi').value;
+  const items = raw.split(/[\n,]+/).map(x => x.trim()).filter(Boolean);
+  if (!items.length) { $('#pe').textContent = pk === 'ip' ? 'Enter an IP address.' : 'Enter a username.'; return; }
+  const reason = $('#pr') ? $('#pr').value.trim() : '';
+  try {
+    const r = pk === 'ip'
+      ? await api('POST', `/api/servers/${cur.id}/banned-ips`, { ips: items, reason })
+      : await api('POST', `/api/servers/${cur.id}/players/${pk}`, { names: items, reason });
+    pf = pk; pClose(); psig = '';
+    $('#pnote').textContent = r.note || '';
+    await pLoad(); pDraw();
+  } catch (e) { $('#pe').textContent = e.message; }
+}
+async function pRm(b) {
+  try {
+    const r = await api('DELETE', `/api/servers/${cur.id}/players/${b.dataset.k}/${encodeURIComponent(b.dataset.n)}`);
+    $('#pnote').textContent = r.note || ''; psig = ''; pLoad();
+  } catch (e) { alert(e.message); }
+}
+async function pUnIp(b) {
+  try { await api('DELETE', `/api/servers/${cur.id}/banned-ips/${encodeURIComponent(b.dataset.ip)}`); psig = ''; pLoad(); }
+  catch (e) { alert(e.message); }
+}
+
+/* software */
+function bSoftware(s) {
+  $('#tabc').innerHTML = `<h2>Software</h2><div class="card">
+  <p>Server software and Minecraft version. The server must be stopped, and do not downgrade a world.</p>
+  ${s.isOwner ? `<div class="row"><select id="rs" onchange="fillVers('rs','rv')">${softOpts(s.soft)}</select>
+  <select id="rv">${verOpts(s.soft, s.ver)}</select>
+  <button class="btn" onclick="chVer()">Apply</button></div>
+  <p class="note">${Object.keys(SDESC).map(k => '<b>' + k + ':</b> ' + SDESC[k]).join('<br>')}</p>` : `<p style="margin-top:10px">Currently <b>${esc(s.soft)} ${esc(s.ver)}</b>. Only the owner can change this.</p>`}
+  </div>`;
+}
+async function chVer() { try { await api('PATCH', '/api/servers/' + cur.id, { soft: $('#rs').value, ver: $('#rv').value }); alert('Applied. Start the server to download it.'); tick(cur.id); } catch (e) { alert(e.message); } }
+
+/* plugins (Paper/Purpur) and mods (Fabric) */
+let phits = [], pnames = [];
+function bPlugins(s) {
+  if (!ADDON.includes(s.soft)) { $('#tabc').innerHTML = `<h2>Plugins</h2><div class="card"><p>Plugins and mods need Paper, Purpur or Fabric. Switch under Software.</p></div>`; return; }
+  const mods = s.soft === 'Fabric', W = mods ? 'Mods' : 'Plugins', w = mods ? 'mods' : 'plugins';
+  $('#tabc').innerHTML = `<h2>${W}</h2><div class="card"><h3>Installed</h3><div id="pinst" style="margin-top:8px"></div></div>
+  <div class="card" style="margin-top:16px"><h3>Find ${w}</h3><p>Searching Modrinth for ${w} that support ${esc(s.ver)}.${mods ? ' Install Fabric API first, since most mods need it.' : ''}</p>
+  <div class="row"><input id="pq" placeholder="${mods ? 'Search mods (Fabric API, Lithium…)' : 'Search plugins (EssentialsX, WorldEdit…)'}" onkeydown="if(event.key==='Enter')pSearch()"><button class="btn" onclick="pSearch()">Search</button></div>
+  <div id="pres" style="margin-top:12px"></div></div>
+  <p class="note">Restart the server after installing or removing ${w}.</p>`;
+  loadPlugins(); pSearch();
+}
+async function loadPlugins() {
+  try {
+    const d = await api('GET', `/api/servers/${cur.id}/plugins`);
+    pnames = d.items;
+    const el = $('#pinst'); if (!el) return;
+    el.innerHTML = pnames.length ? pnames.map((p, i) => `<div class="frow"><span class="fn" style="cursor:default">🧩 ${esc(p.name)}</span><span class="fs">${fsz(p.size)}</span><button class="btn r s" onclick="pRemove(${i})">Remove</button></div>`).join('')
+      : `<p class="note">Nothing installed yet.</p>`;
+  } catch (e) {}
+}
+async function pSearch() {
+  const el = $('#pres'); if (!el) return;
+  el.innerHTML = `<p class="note">Searching…</p>`;
+  try {
+    const d = await api('GET', `/api/servers/${cur.id}/plugins/search?q=${encodeURIComponent($('#pq').value.trim())}`);
+    phits = d.hits;
+    el.innerHTML = phits.length ? phits.map((h, i) => `<div class="item">
+      ${h.icon && /^https:\/\//.test(h.icon) ? `<img src="${esc(h.icon)}" alt="">` : `<img alt="">`}
+      <div class="t"><b>${esc(h.title)}</b><div>${esc(h.desc || '')}</div></div>
+      <button class="btn g s" onclick="pInstall(${i},this)">Install</button></div>`).join('')
+      : `<p class="note">No results.</p>`;
+  } catch (e) { el.innerHTML = `<p class="note">${esc(e.message)}</p>`; }
+}
+async function pInstall(i, b) {
+  b.disabled = true; b.textContent = 'Installing…';
+  try { await api('POST', `/api/servers/${cur.id}/plugins/install`, { id: phits[i].id }); b.textContent = 'Installed ✓'; loadPlugins(); }
+  catch (e) { alert(e.message); b.disabled = false; b.textContent = 'Install'; }
+}
+async function pRemove(i) {
+  if (!confirm('Remove ' + pnames[i].name + '?')) return;
+  try { await api('DELETE', `/api/servers/${cur.id}/plugins/${encodeURIComponent(pnames[i].name)}`); loadPlugins(); }
+  catch (e) { alert(e.message); }
+}
+
+/* subusers */
+function bSubusers(s) {
+  $('#tabc').innerHTML = `<h2>Subusers</h2><div class="card">
+  <p>Subusers can start, stop and use the console, files, plugins and backups. Only the owner can delete the server or change software.</p>
+  <div style="margin-top:12px"><div class="frow"><span class="fn" style="cursor:default">👑 ${esc(s.owner)} <span class="tag">owner</span></span></div>
+  ${s.subs.map((n, i) => `<div class="frow"><span class="fn" style="cursor:default">🔑 ${esc(n)}</span>${s.isOwner ? `<button class="btn r s" onclick="subDel(${i})">Remove</button>` : ''}</div>`).join('')}</div>
+  ${s.isOwner ? `<label>Add a subuser by Nucleon username</label><div class="row"><input id="su" placeholder="Username" onkeydown="if(event.key==='Enter')subAdd()"><button class="btn" onclick="subAdd()">Add</button></div>` : ''}</div>`;
+}
+async function subAdd() {
+  const n = $('#su').value.trim(); if (!n) return;
+  try { await api('POST', `/api/servers/${cur.id}/subusers`, { name: n }); await tick(cur.id); built = ''; draw(); }
+  catch (e) { alert(e.message); }
+}
+async function subDel(i) {
+  try { await api('DELETE', `/api/servers/${cur.id}/subusers/${encodeURIComponent(cur.subs[i])}`); await tick(cur.id); built = ''; draw(); }
+  catch (e) { alert(e.message); }
+}
+
+/* backups */
+let bitems = [];
+function bBackups(s) {
+  $('#tabc').innerHTML = `<h2>Backups</h2><div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><p>Saves your whole server folder. The latest 3 backups are kept.</p>
+  <button class="btn g" id="bmk" onclick="bCreate()">Create backup</button></div>
+  <div id="blist" style="margin-top:12px"></div></div>
+  <p class="note">Restoring replaces the current server files, and the server must be stopped.</p>`;
+  loadBackups();
+}
+async function loadBackups() {
+  try {
+    const d = await api('GET', `/api/servers/${cur.id}/backups`);
+    bitems = d.items;
+    const el = $('#blist'); if (!el) return;
+    el.innerHTML = bitems.length ? bitems.map((b, i) => `<div class="frow"><span class="fn" style="cursor:default">💾 ${esc(new Date(b.time).toLocaleString())}</span><span class="fs">${fsz(b.size)}</span>
+      ${cur.isOwner ? `<button class="btn o s" onclick="bRestore(${i})">Restore</button><button class="btn r s" onclick="bDelete(${i})">Delete</button>` : ''}</div>`).join('')
+      : `<p class="note">No backups yet.</p>`;
+  } catch (e) {}
+}
+async function bCreate() {
+  const b = $('#bmk'); b.disabled = true; b.textContent = 'Creating…';
+  try { await api('POST', `/api/servers/${cur.id}/backups`); loadBackups(); }
+  catch (e) { alert(e.message); }
+  b.disabled = false; b.textContent = 'Create backup';
+}
+async function bRestore(i) {
+  if (!confirm('Restore this backup? Current server files will be replaced.')) return;
+  try { await api('POST', `/api/servers/${cur.id}/backups/${encodeURIComponent(bitems[i].name)}/restore`); alert('Restored'); }
+  catch (e) { alert(e.message); }
+}
+async function bDelete(i) {
+  if (!confirm('Delete this backup?')) return;
+  try { await api('DELETE', `/api/servers/${cur.id}/backups/${encodeURIComponent(bitems[i].name)}`); loadBackups(); }
+  catch (e) { alert(e.message); }
+}
+
+/* network */
+function bNetwork(s) {
+  const rows = [['Java address', rawAddr(s)], ['Direct Java address', HOST + ':' + s.port]];
+  if (s.opts.crossplay && s.bport) rows.push(['Bedrock address', HOST], ['Bedrock port (UDP)', String(s.bport)]);
+  $('#tabc').innerHTML = `<h2>Network</h2><div class="card">${rows.map(r => `<div class="frow"><span class="fn" style="cursor:default;color:var(--mut)">${r[0]}</span><b>${esc(r[1])}</b>
+    <button class="btn o s" data-v="${esc(r[1])}" onclick="copyTxt(this)">Copy</button></div>`).join('')}
+  ${s.opts.crossplay ? '' : '<p class="note">Turn on Crossplay in Options (Paper or Purpur only) to let Bedrock players join.</p>'}</div>`;
 }
 
 /* options */
 function bOptions(s) {
   const o = s.opts;
-  $('#tabc').innerHTML = `<div class="card"><label>MOTD</label><input id="o_motd" value="${esc(o.motd)}">
+  $('#tabc').innerHTML = `<h2>Options</h2><div class="card"><label>MOTD</label><input id="o_motd" value="${esc(o.motd)}">
   <div class="two"><div><label>Gamemode</label><select id="o_gm">${['survival', 'creative', 'adventure', 'spectator'].map(x => `<option ${o.gamemode === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
   <div><label>Difficulty</label><select id="o_df">${['peaceful', 'easy', 'normal', 'hard'].map(x => `<option ${o.difficulty === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div></div>
   <label>Max players (1-20)</label><input id="o_mp" type="number" min="1" max="20" value="${o.maxPlayers}">
   <div class="toggle">PvP<input type="checkbox" id="o_pvp" ${o.pvp ? 'checked' : ''}></div>
   <div class="toggle">Whitelist<input type="checkbox" id="o_wl" ${o.whitelist ? 'checked' : ''}></div>
   <div class="toggle">Online mode (premium accounts only)<input type="checkbox" id="o_om" ${o.onlineMode ? 'checked' : ''}></div>
-  <div class="toggle">Crossplay (Bedrock players, Paper only)<input type="checkbox" id="o_xp" ${o.crossplay ? 'checked' : ''}></div>
+  <div class="toggle">Crossplay (Bedrock players, Paper or Purpur only)<input type="checkbox" id="o_xp" ${o.crossplay ? 'checked' : ''}></div>
   <div class="row"><button class="btn g" id="osv" onclick="saveOpts()">Save options</button></div>
-  <p style="color:var(--mut);font-size:13px;margin-top:10px">Changes apply the next time the server starts.</p></div>`;
+  <p class="note">Changes apply the next time the server starts.</p></div>`;
 }
 async function saveOpts() {
   try {
@@ -316,18 +704,14 @@ async function saveOpts() {
 }
 
 /* settings */
-function bDanger(s) {
-  $('#tabc').innerHTML = `<div class="card"><h3>Rename</h3><div class="row"><input id="rn" value="${esc(s.name)}"><button class="btn" onclick="rename()">Save</button></div>
-  <label>Software / version (server must be stopped; don't downgrade a world)</label>
-  <div class="row"><select id="rs">${SOFT.map(x => `<option ${s.soft === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
-  <select id="rv">${VERS.map(x => `<option ${s.ver === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
-  <button class="btn" onclick="chVer()">Apply</button></div></div>
+function bSettings(s) {
+  $('#tabc').innerHTML = s.isOwner ? `<h2>Settings</h2><div class="card"><h3>Rename</h3><div class="row"><input id="rn" value="${esc(s.name)}"><button class="btn" onclick="rename()">Save</button></div></div>
   <div class="card" style="margin-top:16px;border-color:var(--red)"><h3 style="color:var(--red)">Danger zone</h3>
-  <p style="margin:8px 0 14px">Deleting a server removes its world and files permanently.</p>
-  <button class="btn r" onclick="del()">Delete server</button></div>`;
+  <p style="margin:8px 0 14px">Deleting a server removes its world, files and backups permanently.</p>
+  <button class="btn r" onclick="del()">Delete server</button></div>`
+  : `<h2>Settings</h2><div class="card"><p>Only the owner (${esc(s.owner)}) can rename or delete this server.</p></div>`;
 }
 async function rename() { try { await api('PATCH', '/api/servers/' + cur.id, { name: $('#rn').value.trim() }); tick(cur.id); } catch (e) { alert(e.message); } }
-async function chVer() { try { await api('PATCH', '/api/servers/' + cur.id, { soft: $('#rs').value, ver: $('#rv').value }); tick(cur.id); } catch (e) { alert(e.message); } }
 async function del() {
   if (!confirm('Delete this server and its world permanently?')) return;
   try { await api('DELETE', '/api/servers/' + cur.id); location.hash = '#/servers'; } catch (e) { alert(e.message); }
