@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const net = require('net');
-const { spawn } = require('child_process');
+const dns = require('dns').promises;
+const { spawn, execFile } = require('child_process');
 const { pipeline } = require('stream/promises');
 const { Readable } = require('stream');
 
@@ -14,12 +15,30 @@ const BASE_BEDROCK_PORT = 19132;
 const MAX_SERVERS_PER_USER = 3;
 const MAX_BACKUPS = 3;
 const MAX_SUBUSERS = 5;
-const RAM = '1G';
+const RAM_CHOICES = [512, 1024, 1536, 2048];
+const NODE_NAME = process.env.NODE_NAME || 'nucleon-1';
 const SOFT_ORDER = ['Paper', 'Purpur', 'Fabric', 'Vanilla'];
 const PLUGIN_SOFT = ['Paper', 'Purpur'];
 const MIN_VER = '1.16.5';
 const FALLBACK_VERS = ['1.21.4', '1.21.1', '1.20.6', '1.20.4', '1.19.4', '1.18.2'];
 const UA = { 'User-Agent': 'Nucleon/1.0 (Creed Inc.)' };
+
+/* optimized Java flags (garbage collection tuning) */
+const AIKAR = ['-XX:+UseG1GC', '-XX:+ParallelRefProcEnabled', '-XX:MaxGCPauseMillis=200', '-XX:+UnlockExperimentalVMOptions',
+  '-XX:+DisableExplicitGC', '-XX:G1NewSizePercent=30', '-XX:G1MaxNewSizePercent=40', '-XX:G1HeapRegionSize=8M',
+  '-XX:G1ReservePercent=20', '-XX:G1HeapWastePercent=5', '-XX:G1MixedGCCountTarget=4', '-XX:InitiatingHeapOccupancyPercent=15',
+  '-XX:G1MixedGCLiveThresholdPercent=90', '-XX:G1RSetUpdatingPauseTimePercent=5', '-XX:SurvivorRatio=32',
+  '-XX:+PerfDisableSharedMem', '-XX:MaxTenuringThreshold=1'];
+
+/* per-server settings and config defaults */
+const SET_DEF = { desc: '', tz: 'UTC', autoRestart: true, killOnFail: true, killTimeout: 60, ram: 1024, aikar: false, color: '#4d8dff', icon: '' };
+const CFG_DEF = { viewDistance: 10, simDistance: 10, spawnProtection: 16, allowNether: true, allowFlight: false, hardcore: false,
+  spawnMonsters: true, spawnAnimals: true, spawnNpcs: true, commandBlocks: false, forceGamemode: false, seed: '' };
+const sets = s => ({ ...SET_DEF, ...(s.set || {}) });
+const props = s => ({ ...CFG_DEF, ...(s.cfg || {}) });
+const defOpts = () => ({ motd: 'A Nucleon server', gamemode: 'survival', difficulty: 'normal', pvp: true, whitelist: false, onlineMode: true, maxPlayers: 10 });
+const validTz = z => { try { new Intl.DateTimeFormat('en', { timeZone: z }); return true; } catch (e) { return false; } };
+const clampInt = (v, lo, hi, d) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
 
 /* custom address settings */
 const DOMAIN = process.env.DOMAIN || 'nucleon.host';
@@ -37,9 +56,36 @@ fs.mkdirSync(DATA, { recursive: true });
 fs.mkdirSync(SRV, { recursive: true });
 fs.mkdirSync(BKP, { recursive: true });
 const DBF = path.join(DATA, 'db.json');
+
+/* ---------- storage: a file locally, Upstash Redis when its env vars exist (Vercel) ---------- */
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || '';
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || '';
+const REMOTE = !!(REDIS_URL && REDIS_TOKEN);
+const DB_KEY = 'nucleon_db';
+async function redis(cmd) {
+  const r = await fetch(REDIS_URL, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + REDIS_TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify(cmd)
+  });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j.result;
+}
 let db = { users: {}, sessions: {}, servers: {} };
-if (fs.existsSync(DBF)) db = JSON.parse(fs.readFileSync(DBF, 'utf8'));
-const save = () => fs.writeFileSync(DBF, JSON.stringify(db, null, 2));
+if (!REMOTE && fs.existsSync(DBF)) db = JSON.parse(fs.readFileSync(DBF, 'utf8'));
+let pending = Promise.resolve();
+function save() {
+  if (!REMOTE) return fs.writeFileSync(DBF, JSON.stringify(db, null, 2));
+  const text = JSON.stringify(db);
+  pending = pending.then(() => redis(['SET', DB_KEY, text])).catch(e => console.log('Save failed:', e.message));
+}
+async function loadDb() {
+  if (!REMOTE) return;
+  const t = await redis(['GET', DB_KEY]);
+  db = t ? JSON.parse(t) : { users: {}, sessions: {}, servers: {} };
+  db.users ||= {}; db.sessions ||= {}; db.servers ||= {};
+}
 
 /* ---------- runtime state (not persisted) ---------- */
 const runtime = {};
@@ -49,6 +95,28 @@ function send(r, cmd) { if (r.proc && r.proc.stdin.writable) r.proc.stdin.write(
 const validName = x => /^[A-Za-z0-9_]{1,16}$/.test(x || '');
 const same = n => x => x.toLowerCase() === n.toLowerCase();
 const validEmail = e => e.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+
+/* ---------- email check: format, disposable domains, typos, and whether the domain can receive mail ---------- */
+const DISPOSABLE = new Set(['mailinator.com', 'guerrillamail.com', '10minutemail.com', 'tempmail.com', 'temp-mail.org', 'yopmail.com',
+  'trashmail.com', 'sharklasers.com', 'getnada.com', 'maildrop.cc', 'dispostable.com', 'throwawaymail.com', 'fakeinbox.com',
+  'mintemail.com', 'tempmailo.com', 'emailondeck.com', 'moakt.com', 'mohmal.com']);
+const TYPOS = { 'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.con': 'gmail.com',
+  'gmaill.com': 'gmail.com', 'yaho.com': 'yahoo.com', 'yahoo.con': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'hotmail.con': 'hotmail.com',
+  'outlok.com': 'outlook.com', 'outlook.con': 'outlook.com' };
+async function emailProblem(mail) {
+  if (!validEmail(mail)) return 'Enter a valid email address';
+  const [local, domain] = mail.split('@');
+  if (DISPOSABLE.has(domain)) return 'Disposable email addresses are not allowed';
+  if (TYPOS[domain]) return 'Did you mean ' + local + '@' + TYPOS[domain] + '?';
+  try {
+    const mx = await dns.resolveMx(domain);
+    if (mx && mx.length) return null;
+    return 'That email domain cannot receive mail';
+  } catch (e) {
+    if (e.code === 'ENOTFOUND' || e.code === 'ENODATA') return 'That email domain does not exist';
+    return null; /* a DNS hiccup should not block a real person */
+  }
+}
 
 /* ---------- auth helpers ---------- */
 function hashPw(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -61,7 +129,10 @@ function checkPw(pw, stored) {
 }
 function session(key) {
   const t = crypto.randomBytes(24).toString('hex');
-  db.sessions[t] = key; save();
+  db.sessions[t] = key;
+  const all = Object.keys(db.sessions);
+  if (all.length > 2000) all.slice(0, all.length - 2000).forEach(k => delete db.sessions[k]); /* drop the oldest */
+  save();
   return { token: t, name: db.users[key].name };
 }
 function auth(req, res, next) {
@@ -113,10 +184,15 @@ async function deleteSrv(s) {
 
 function view(s, u) {
   const r = rt(s.id);
+  r.seen = Date.now();
+  const t = sets(s);
   return { id: s.id, name: s.name, soft: s.soft, ver: s.ver, port: s.port, bport: s.bport, sub: s.sub, domain: DOMAIN, opts: s.opts,
            ops: s.ops, wl: s.wl, isOwner: s.owner === u,
            owner: db.users[s.owner] ? db.users[s.owner].name : s.owner,
            subs: (s.subs || []).map(k => db.users[k] ? db.users[k].name : k),
+           set: t, cfg: props(s), node: NODE_NAME, created: s.created || null,
+           up: r.proc && r.upAt ? Date.now() - r.upAt : 0,
+           mem: Math.round(r.mem || 0), ramMax: t.ram, disk: r.disk || 0,
            status: r.status, players: r.players, log: r.log.slice(-300) };
 }
 
@@ -220,11 +296,16 @@ async function ensureJar(s, r) {
   addLog(r, '[Nucleon] Download complete.');
 }
 function writeProps(s, dir) {
-  const o = s.opts;
+  const o = s.opts, c = props(s);
   const p = {
     'server-port': s.port, motd: o.motd.replace(/[\r\n]/g, ' '), gamemode: o.gamemode,
     difficulty: o.difficulty, pvp: o.pvp, 'white-list': o.whitelist,
-    'enforce-whitelist': o.whitelist, 'online-mode': o.onlineMode, 'max-players': o.maxPlayers
+    'enforce-whitelist': o.whitelist, 'online-mode': o.onlineMode, 'max-players': o.maxPlayers,
+    'view-distance': c.viewDistance, 'simulation-distance': c.simDistance, 'spawn-protection': c.spawnProtection,
+    'allow-nether': c.allowNether, 'allow-flight': c.allowFlight, hardcore: c.hardcore,
+    'spawn-monsters': c.spawnMonsters, 'spawn-animals': c.spawnAnimals, 'spawn-npcs': c.spawnNpcs,
+    'enable-command-block': c.commandBlocks, 'force-gamemode': c.forceGamemode,
+    'level-seed': String(c.seed).replace(/[\r\n]/g, '')
   };
   fs.writeFileSync(path.join(dir, 'server.properties'),
     Object.entries(p).map(([k, v]) => `${k}=${v}`).join('\n') + '\n');
@@ -285,6 +366,7 @@ function handleLine(s, r, line) {
   }
   if (/Done \(.*\)! For help/.test(line)) {
     r.status = 'online';
+    r.upAt = Date.now();
     s.wl.forEach(n => send(r, 'whitelist add ' + n));
     s.ops.forEach(n => send(r, 'op ' + n));
     /* run changes made while the server was offline (bans, unbans, IP bans) */
@@ -303,7 +385,7 @@ function handleLine(s, r, line) {
 async function startServer(s) {
   const r = rt(s.id);
   if (r.status !== 'offline') return;
-  r.status = 'starting'; r.players = [];
+  r.status = 'starting'; r.players = []; r.upAt = null;
   addLog(r, '[Nucleon] Preparing server…');
   try {
     const dir = path.join(SRV, s.id);
@@ -313,7 +395,12 @@ async function startServer(s) {
     else removeCrossplay(dir);
     fs.writeFileSync(path.join(dir, 'eula.txt'), 'eula=true\n');
     writeProps(s, dir);
-    const proc = spawn('java', [`-Xmx${RAM}`, '-Xms256M', '-jar', 'server.jar', 'nogui'], { cwd: dir });
+    const t = sets(s);
+    const args = [`-Xmx${t.ram}M`, `-Xms${Math.min(256, t.ram)}M`,
+      ...(t.aikar ? AIKAR : []),
+      ...(validTz(t.tz) ? [`-Duser.timezone=${t.tz}`] : []),
+      '-jar', 'server.jar', 'nogui'];
+    const proc = spawn('java', args, { cwd: dir });
     r.proc = proc;
     const onData = d => String(d).split(/\r?\n/).filter(Boolean).forEach(l => handleLine(s, r, l));
     proc.stdout.on('data', onData);
@@ -323,8 +410,22 @@ async function startServer(s) {
       r.status = 'offline'; r.proc = null;
     });
     proc.on('exit', code => {
+      const wasStopping = r.status === 'stopping';
+      const hadRun = !!r.upAt;
       addLog(r, `[Nucleon] Server stopped (exit code ${code}).`);
-      r.status = 'offline'; r.proc = null; r.players = [];
+      r.status = 'offline'; r.proc = null; r.players = []; r.upAt = null; r.mem = 0;
+      /* auto-restart after a crash (not after a normal stop) */
+      if (!wasStopping && hadRun && code !== 0 && sets(s).autoRestart && db.servers[s.id]) {
+        const now = Date.now();
+        r.crashes = (r.crashes || []).filter(x => now - x < 600000);
+        if (r.crashes.length < 3) {
+          r.crashes.push(now);
+          addLog(r, '[Nucleon] The server crashed. Restarting in 5 seconds…');
+          setTimeout(() => { if (db.servers[s.id] && rt(s.id).status === 'offline') startServer(s); }, 5000);
+        } else {
+          addLog(r, '[Nucleon] The server keeps crashing, so auto-restart has stopped.');
+        }
+      }
     });
   } catch (e) {
     addLog(r, '[Nucleon] Start failed: ' + e.message);
@@ -336,8 +437,8 @@ function stopServer(s) {
   if (!r.proc) return;
   r.status = 'stopping';
   send(r, 'stop');
-  const p = r.proc;
-  setTimeout(() => { if (r.proc === p) p.kill(); }, 30000);
+  const p = r.proc, t = sets(s);
+  if (t.killOnFail) setTimeout(() => { if (r.proc === p) p.kill(); }, t.killTimeout * 1000);
 }
 
 /* ---------- files / backups helpers ---------- */
@@ -375,10 +476,75 @@ function kindOf(s) {
   return null;
 }
 
+/* ---------- live stats: RAM used by the Java process, storage used by the folder ---------- */
+function procMem(pid) {
+  return new Promise(ok => {
+    if (process.platform === 'win32') {
+      execFile('tasklist', ['/FI', 'PID eq ' + pid, '/FO', 'CSV', '/NH'], (e, out) => {
+        if (e) return ok(0);
+        const last = String(out).trim().split('","').pop() || '';
+        const kb = parseInt(last.replace(/\D/g, ''), 10);
+        ok(kb ? kb / 1024 : 0);
+      });
+    } else {
+      execFile('ps', ['-o', 'rss=', '-p', String(pid)], (e, out) => ok(e ? 0 : (parseInt(out, 10) || 0) / 1024));
+    }
+  });
+}
+async function dirSize(p) {
+  let total = 0, items;
+  try { items = await fs.promises.readdir(p, { withFileTypes: true }); } catch (e) { return 0; }
+  for (const d of items) {
+    const f = path.join(p, d.name);
+    try {
+      if (d.isDirectory()) total += await dirSize(f);
+      else if (d.isFile()) total += (await fs.promises.stat(f)).size;
+    } catch (e) { /* ignore */ }
+  }
+  return total;
+}
+let statsBusy = false;
+async function refreshStats() {
+  if (statsBusy) return;
+  statsBusy = true;
+  try {
+    for (const s of Object.values(db.servers)) {
+      const r = rt(s.id);
+      if (Date.now() - (r.seen || 0) > 30000) continue; /* only servers someone is looking at */
+      r.mem = r.proc ? await procMem(r.proc.pid) : 0;
+      if (!r.diskAt || Date.now() - r.diskAt > 15000) { r.diskAt = Date.now(); r.disk = await dirSize(sdir(s)); }
+    }
+  } catch (e) { /* try again next time */ }
+  statsBusy = false;
+}
+setInterval(refreshStats, 5000).unref();
+
 /* ---------- web app + API ---------- */
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+/* hosted database: load before each API request, one request at a time, and finish saving before replying */
+let lock = Promise.resolve();
+app.use('/api', (req, res, next) => {
+  if (!REMOTE) return next();
+  const prev = lock;
+  let release;
+  lock = new Promise(r => { release = r; });
+  let released = false;
+  const done = () => { if (!released) { released = true; release(); } };
+  res.on('finish', done);
+  res.on('close', done);
+  prev.then(loadDb).then(() => {
+    const sendJson = res.json.bind(res);
+    res.json = body => pending.then(() => sendJson(body));
+    next();
+  }).catch(e => {
+    console.log('Database error:', e.message);
+    done();
+    res.status(500).json({ error: 'Database unavailable, try again' });
+  });
+});
 
 app.get('/api/config', (q, r) => r.json({ host: process.env.PUBLIC_HOST || null, domain: DOMAIN }));
 app.get('/api/software', async (q, r) => r.json({ software: await getSoftware() }));
@@ -389,12 +555,13 @@ app.get('/api/check-name', auth, (req, res) => {
   res.json({ sub, address: sub + '.' + DOMAIN, ok: !err, error: err });
 });
 
-app.post('/api/register', (req, res) => {
+app.post('/api/register', async (req, res) => {
   const { name = '', email = '', password = '' } = req.body || {};
   const mail = String(email).trim().toLowerCase();
   const pw = String(password);
   if (!/^[A-Za-z0-9_]{3,16}$/.test(name)) return res.status(400).json({ error: 'Username must be 3-16 letters, numbers or _' });
-  if (!validEmail(mail)) return res.status(400).json({ error: 'Enter a valid email address' });
+  const mailErr = await emailProblem(mail);
+  if (mailErr) return res.status(400).json({ error: mailErr });
   if (pw.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
   const key = name.toLowerCase();
   if (db.users[key]) return res.status(400).json({ error: 'Username already taken' });
@@ -430,7 +597,7 @@ app.post('/api/servers', auth, async (req, res) => {
   const id = crypto.randomBytes(6).toString('hex');
   db.servers[id] = {
     id, owner: req.user, name: String(b.name || 'My Server').slice(0, 32), soft: b.soft, ver: b.ver, port, sub,
-    opts: { motd: 'A Nucleon server', gamemode: 'survival', difficulty: 'normal', pvp: true, whitelist: false, onlineMode: true, maxPlayers: 10 },
+    created: Date.now(), opts: defOpts(), set: {}, cfg: {},
     ops: [], wl: [], subs: []
   };
   save();
@@ -438,7 +605,12 @@ app.post('/api/servers', auth, async (req, res) => {
   res.json(view(db.servers[id], req.user));
 });
 
-app.get('/api/servers/:id', auth, (req, res) => { const s = owned(req, res); if (s) res.json(view(s, req.user)); });
+app.get('/api/servers/:id', auth, (req, res) => {
+  const s = owned(req, res); if (!s) return;
+  const v = view(s, req.user);
+  if (rt(s.id).diskAt === undefined) refreshStats();
+  res.json(v);
+});
 
 app.post('/api/servers/:id/start', auth, (req, res) => { const s = owned(req, res); if (!s) return; startServer(s); res.json({ ok: true }); });
 app.post('/api/servers/:id/stop', auth, (req, res) => { const s = owned(req, res); if (!s) return; stopServer(s); res.json({ ok: true }); });
@@ -481,6 +653,58 @@ app.put('/api/servers/:id/options', auth, (req, res) => {
              crossplay: !!o.crossplay };
   if (s.opts.crossplay) assignBport(s);
   save(); res.json({ ok: true });
+});
+
+/* ----- settings (General / Config / Customization / Startup) ----- */
+app.put('/api/servers/:id/settings', auth, (req, res) => {
+  const s = owned(req, res, true); if (!s) return;
+  const b = req.body || {};
+  const t = sets(s), c = props(s);
+  if ('desc' in b) t.desc = String(b.desc).replace(/[\r\n]/g, ' ').slice(0, 200);
+  if ('tz' in b) {
+    if (!validTz(String(b.tz))) return res.status(400).json({ error: 'Unknown time zone' });
+    t.tz = String(b.tz);
+  }
+  if ('autoRestart' in b) t.autoRestart = !!b.autoRestart;
+  if ('killOnFail' in b) t.killOnFail = !!b.killOnFail;
+  if ('killTimeout' in b) t.killTimeout = clampInt(b.killTimeout, 10, 300, t.killTimeout);
+  if ('ram' in b) {
+    const ram = parseInt(b.ram, 10);
+    if (!RAM_CHOICES.includes(ram)) return res.status(400).json({ error: 'Pick one of the listed memory sizes' });
+    t.ram = ram;
+  }
+  if ('aikar' in b) t.aikar = !!b.aikar;
+  if ('color' in b) {
+    if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'Bad colour' });
+    t.color = String(b.color);
+  }
+  if ('icon' in b) t.icon = Array.from(String(b.icon)).slice(0, 2).join('').replace(/[<>&"']/g, '');
+  if (b.cfg && typeof b.cfg === 'object') {
+    const x = b.cfg;
+    if ('viewDistance' in x) c.viewDistance = clampInt(x.viewDistance, 2, 32, c.viewDistance);
+    if ('simDistance' in x) c.simDistance = clampInt(x.simDistance, 3, 32, c.simDistance);
+    if ('spawnProtection' in x) c.spawnProtection = clampInt(x.spawnProtection, 0, 64, c.spawnProtection);
+    ['allowNether', 'allowFlight', 'hardcore', 'spawnMonsters', 'spawnAnimals', 'spawnNpcs', 'commandBlocks', 'forceGamemode']
+      .forEach(k => { if (k in x) c[k] = !!x[k]; });
+    if ('seed' in x) c.seed = String(x.seed).replace(/[\r\n]/g, '').slice(0, 64);
+  }
+  s.set = t; s.cfg = c;
+  save(); res.json(view(s, req.user));
+});
+
+/* "Set up again": new software/version, options back to defaults, optionally wipe the world */
+app.post('/api/servers/:id/reset-setup', auth, async (req, res) => {
+  const s = owned(req, res, true); if (!s) return;
+  if (rt(s.id).status !== 'offline') return res.status(400).json({ error: 'Stop the server first' });
+  const b = req.body || {};
+  if (!(await validSoft(b.soft, b.ver))) return res.status(400).json({ error: 'Invalid software or version' });
+  s.soft = b.soft; s.ver = b.ver;
+  s.opts = defOpts(); s.set = {}; s.cfg = {};
+  if (b.wipe) {
+    fs.rmSync(sdir(s), { recursive: true, force: true });
+    s.jarKey = ''; s.known = []; s.queue = []; s.ops = []; s.wl = []; s.bans = []; s.bannedIps = [];
+  }
+  save(); res.json(view(s, req.user));
 });
 
 app.patch('/api/servers/:id', auth, async (req, res) => {
