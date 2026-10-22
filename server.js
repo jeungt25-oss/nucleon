@@ -22,6 +22,7 @@ const PLUGIN_SOFT = ['Paper', 'Purpur'];
 const MIN_VER = '1.16.5';
 const FALLBACK_VERS = ['1.21.4', '1.21.1', '1.20.6', '1.20.4', '1.19.4', '1.18.2'];
 const UA = { 'User-Agent': 'Nucleon/1.0 (Creed Inc.)' };
+const DISK_LIMIT_MB = parseInt(process.env.DISK_LIMIT_MB, 10) || 5120; 
 
 /* optimized Java flags (garbage collection tuning) */
 const AIKAR = ['-XX:+UseG1GC', '-XX:+ParallelRefProcEnabled', '-XX:MaxGCPauseMillis=200', '-XX:+UnlockExperimentalVMOptions',
@@ -192,7 +193,7 @@ function view(s, u) {
            subs: (s.subs || []).map(k => db.users[k] ? db.users[k].name : k),
            set: t, cfg: props(s), node: NODE_NAME, created: s.created || null,
            up: r.proc && r.upAt ? Date.now() - r.upAt : 0,
-           mem: Math.round(r.mem || 0), ramMax: t.ram, disk: r.disk || 0,
+           mem: Math.round(r.mem || 0), ramMax: t.ram, disk: r.disk || 0, diskMax: DISK_LIMIT_MB,
            status: r.status, players: r.players, log: r.log.slice(-300) };
 }
 

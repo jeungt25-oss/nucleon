@@ -98,6 +98,30 @@ footer{border-top:1px solid var(--line);padding:26px;text-align:center;color:var
 .plnk{background:none;border:0;color:var(--mut);text-decoration:underline;cursor:pointer;font:inherit;font-size:13px;margin-top:10px}
 @media(max-width:800px){.ptools{flex-direction:column}.pdd>button{min-height:44px}.pmenu{left:0;right:0}}
 @media(max-width:800px){.two{grid-template-columns:1fr}nav a:not(.btn){display:none}.shell{grid-template-columns:1fr}.side{position:static}}
+
+/* server page: sidebar and middle scroll independently */
+body.srvpage{height:100vh;overflow:hidden}
+body.srvpage footer{display:none}
+body.srvpage main{max-width:none;margin:0;padding:16px 20px 0 12px;height:calc(100vh - var(--hh,77px))}
+body.srvpage .shell{height:100%;align-items:stretch;gap:20px}
+body.srvpage .side{position:static;height:calc(100% - 16px);overflow-y:auto;overscroll-behavior:contain}
+body.srvpage #tabc{height:100%;overflow-y:auto;overscroll-behavior:contain;min-width:0;padding:0 6px 40px 0}
+@media(max-width:800px){
+  body.srvpage{height:auto;overflow:auto}
+  body.srvpage main,body.srvpage .shell,body.srvpage .side,body.srvpage #tabc{height:auto;overflow:visible}
+}
+
+/* overview stat cards */
+.stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.sl{color:var(--mut);font-size:13px;margin-bottom:6px}
+.sv{font-size:18px;font-weight:700;word-break:break-all}
+.bar{height:6px;background:var(--panel2);border-radius:99px;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:width .4s,background .3s}
+.sw{display:flex;align-items:center;gap:10px}
+.swl,.swf{width:28px;height:28px;border-radius:7px;flex:none}
+.swl{object-fit:contain}
+.swf{display:grid;place-items:center;background:var(--panel2);border:1px solid var(--line);font-size:14px}
 </style>
 </head>
 <body>
@@ -163,6 +187,7 @@ function route() {
     return;
   }
   clearInterval(poll); shellId = null;
+  document.body.classList.remove('srvpage');
   renderNav(p1 || '');
   if (!p1) return home();
   if (p1 === 'about') return about();
@@ -238,7 +263,8 @@ async function list() {
       <span class="tag">${esc(s.soft)} ${esc(s.ver)}</span></div>`).join('')
       : `<div class="empty card">No servers yet. Create your first one!</div>`);
 }
-function newModal() {
+async function newModal() {
+  try { const d = await (await fetch('/api/software')).json(); if (d.software) SW = d.software; } catch (e) {}
   const first = Object.keys(SW)[0];
   const m = document.createElement('div'); m.className = 'modal'; m.id = 'modal';
   m.innerHTML = `<div class="card"><h2>New server</h2>
@@ -301,6 +327,8 @@ const NAV = [
 const TABS = NAV.flatMap(g => g[1].map(i => i[0]));
 
 async function detail(id, t) {
+  document.body.classList.add('srvpage');
+  document.documentElement.style.setProperty('--hh', document.querySelector('header').offsetHeight + 'px');
   shellId = id; built = ''; cur = null; tab = t || 'overview'; sig = '';
   $('#app').innerHTML = `<div class="shell"><aside class="side" id="side"></aside><section id="tabc"></section></div>`;
   poll = setInterval(() => tick(id), 2000);
@@ -334,8 +362,8 @@ function draw() {
   if (!TABS.includes(tab)) tab = 'overview';
   if (tab === 'overview') {
     const g = JSON.stringify([s.status, s.players, s.opts, s.name, s.port, s.bport, s.sub, s.soft, s.ver]);
-    if (built === 'overview' && g === sig) return;
-    built = 'overview'; sig = g; return tStatus(s);
+    if (built === 'overview' && g === sig) { uStats(s); return; }
+    built = 'overview'; sig = g; tStatus(s); uStats(s); return;
   }
   if (built !== tab) { built = tab; BUILD[tab](s); }
   if (tab === 'console') uConsole(s);
@@ -346,6 +374,13 @@ const fsz = n => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' K
 function copyTxt(b) { navigator.clipboard.writeText(b.dataset.v).then(() => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1200); }); }
 
 /* overview */
+const swLogo = n => `<img class="swl" src="/img/software/${esc(n.toLowerCase())}.png" alt="" onerror="this.outerHTML='<b class=&quot;swf&quot;>${esc(n[0])}</b>'">`;
+const fmtUp = ms => {
+  const t = Math.floor(ms / 1000), d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60), x = t % 60;
+  return d ? `${d}d ${h}h ${m}m` : h ? `${h}h ${m}m ${x}s` : m ? `${m}m ${x}s` : `${x}s`;
+};
+const fmtMB = n => n >= 1024 ? (n / 1024).toFixed(2).replace(/\.?0+$/, '') + ' GB' : Math.round(n) + ' MB';
+
 function tStatus(s) {
   const on = s.status === 'online', off = s.status === 'offline';
   $('#tabc').innerHTML = `<h2>Overview</h2><div class="two"><div class="card big">
@@ -358,10 +393,27 @@ function tStatus(s) {
       <button class="btn r" ${on ? '' : 'disabled'} onclick="act('${s.id}','stop')">Stop</button>
       <button class="btn o" ${on ? '' : 'disabled'} onclick="act('${s.id}','restart')">Restart</button></div></div>
     <div class="card"><h3>Info</h3><p style="margin-top:10px;line-height:2">
-      Software: <b>${esc(s.soft)} ${esc(s.ver)}</b><br>
       Players: <b>${s.players.length}/${s.opts.maxPlayers}</b><br>Gamemode: <b>${s.opts.gamemode}</b><br>
       Difficulty: <b>${s.opts.difficulty}</b><br>MOTD: <b>${esc(s.opts.motd)}</b><br>
-      Whitelist: <b>${s.opts.whitelist ? 'on' : 'off'}</b></p></div></div>`;
+      Whitelist: <b>${s.opts.whitelist ? 'on' : 'off'}</b></p></div></div>
+    <div class="stats">
+      <div class="stat"><div class="sl">RAM</div><div class="sv" id="stRam">–</div><div class="bar"><i id="stRamB"></i></div></div>
+      <div class="stat"><div class="sl">Storage</div><div class="sv" id="stDisk">–</div><div class="bar"><i id="stDiskB"></i></div></div>
+      <div class="stat"><div class="sl">Uptime</div><div class="sv" id="stUp">–</div></div>
+      <div class="stat"><div class="sl">Software</div><div class="sv sw">${swLogo(s.soft)}<span>${esc(s.soft)} ${esc(s.ver)}</span></div></div>
+      <div class="stat"><div class="sl">Address</div><div class="sv sw"><span>${addr(s)}</span>
+        <button class="btn o s" data-v="${esc(rawAddr(s))}" onclick="copyTxt(this)">Copy</button></div></div>
+    </div>`;
+}
+function uStats(s) {
+  const set = (id, t) => { const e = $('#' + id); if (e) e.textContent = t; };
+  const bar = (id, p) => { const e = $('#' + id); if (e) { e.style.width = Math.min(100, p) + '%'; e.style.background = p > 90 ? 'var(--red)' : p > 75 ? 'var(--yel)' : 'var(--acc2)'; } };
+  const diskMB = s.disk / 1048576;
+  set('stRam', s.mem + ' / ' + s.ramMax + ' MB');
+  bar('stRamB', s.ramMax ? s.mem / s.ramMax * 100 : 0);
+  set('stDisk', fmtMB(diskMB) + ' / ' + fmtMB(s.diskMax));
+  bar('stDiskB', s.diskMax ? diskMB / s.diskMax * 100 : 0);
+  set('stUp', s.up ? fmtUp(s.up) : 'Offline');
 }
 
 /* console */
